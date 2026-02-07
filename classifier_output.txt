@@ -1,8 +1,0 @@
-{"item_id": "chicken_breast", "stockout_probability": 0.82, "surplus_probability": 0.10, "days_until_event": 2, "expected_units": 0}
-{"item_id": "lettuce", "stockout_probability": 0.15, "surplus_probability": 0.95, "days_until_event": 3, "expected_units": 28}
-{"item_id": "steak", "stockout_probability": 0.78, "surplus_probability": 0.05, "days_until_event": 1, "expected_units": 2}
-{"item_id": "flour", "stockout_probability": 0.65, "surplus_probability": 0.12, "days_until_event": 4, "expected_units": 3}
-{"item_id": "tomato_sauce", "stockout_probability": 0.45, "surplus_probability": 0.30, "days_until_event": 5, "expected_units": 10}
-{"item_id": "mozzarella", "stockout_probability": 0.20, "surplus_probability": 0.72, "days_until_event": 2, "expected_units": 35}
-{"item_id": "beef_patty", "stockout_probability": 0.88, "surplus_probability": 0.03, "days_until_event": 1, "expected_units": 1}
-{"item_id": "sugar", "stockout_probability": 0.30, "surplus_probability": 0.55, "days_until_event": 6, "expected_units": 18}
