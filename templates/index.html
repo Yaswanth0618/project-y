@@ -2,9 +2,169 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Hi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpellStock AI | Predictive Inventory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
 </head>
-<body>
-    <h1>hi</h1>
+<body class="noise-overlay bg-[#0a0a0c] text-[#f8fafc] overflow-x-hidden min-h-screen">
+    <div id="root">
+        <!-- Login View -->
+        <div id="login-view" class="min-h-screen flex items-center justify-center relative overflow-hidden">
+            <div class="fixed inset-0 bg-indigo-600/10 blur-[150px] -z-10 rounded-full animate-pulse"></div>
+            <div class="glass-panel p-12 rounded-[40px] w-full max-w-md space-y-8 relative z-10 border-white/20">
+                <div class="text-center space-y-2">
+                    <div class="h-16 w-16 glass-panel rounded-2xl mx-auto flex items-center justify-center border-indigo-500/50 mb-6 shadow-[0_0_30px_rgba(79,70,229,0.2)]">
+                        <div class="w-6 h-6 bg-indigo-500 rounded-sm rotate-45"></div>
+                    </div>
+                    <h1 class="text-3xl font-bold tracking-tighter uppercase">SpellStock</h1>
+                    <p class="text-[10px] mono text-white/40 uppercase tracking-[0.3em]">Initialize Neural Link</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] mono text-white/30 uppercase tracking-widest ml-4">Node Identity</label>
+                        <input type="text" value="admin_main" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl focus:ring-1 focus:ring-indigo-500 outline-none transition-all text-sm font-medium">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] mono text-white/30 uppercase tracking-widest ml-4">Access Key</label>
+                        <input type="password" value="••••••••" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl focus:ring-1 focus:ring-indigo-500 outline-none transition-all text-sm font-medium">
+                    </div>
+                    <button id="btn-login" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 rounded-2xl font-bold uppercase tracking-widest text-sm transition-all shadow-[0_0_40px_rgba(79,70,229,0.4)]">
+                        Enter System
+                    </button>
+                </div>
+                <p class="text-[9px] text-center text-white/20 uppercase tracking-widest">Authorized Personnel Only // Protocol 09-X</p>
+            </div>
+        </div>
+
+        <!-- Dashboard View (Hidden by default) -->
+        <div id="dashboard-view" class="hidden min-h-screen flex">
+            <!-- Sidebar -->
+            <aside class="w-72 border-r border-white/5 bg-[#0a0a0c] flex flex-col h-screen sticky top-0 z-[60]">
+                <div class="p-8 border-b border-white/5 flex items-center gap-3">
+                    <div class="h-8 w-8 bg-indigo-500 rounded flex items-center justify-center rotate-45">
+                        <div class="w-2 h-2 bg-white rounded-full"></div>
+                    </div>
+                    <span class="text-lg font-bold tracking-tighter uppercase">SpellStock</span>
+                </div>
+                <nav class="flex-1 p-6 space-y-2 overflow-y-auto" id="sidebar-nav"></nav>
+                <div class="p-6 border-t border-white/5 space-y-4">
+                    <div class="flex items-center gap-3 px-2">
+                        <div class="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-[10px] font-bold">JD</div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-white">Chef de Node</p>
+                            <p class="text-[9px] mono text-white/30 uppercase">ID: 4402-B</p>
+                        </div>
+                    </div>
+                    <button id="btn-logout" type="button" class="w-full py-2 text-[10px] mono uppercase text-white/30 hover:text-white transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        Terminate Link
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <div class="flex-1 flex flex-col relative">
+                <header class="px-8 py-6 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#0a0a0c]/80 backdrop-blur-xl z-50">
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tighter uppercase">Environment <span class="text-indigo-500">Orchestrator</span></h1>
+                        <p class="text-[10px] mono text-white/40 uppercase tracking-[0.2em]">Operational Pulse // Active Zone 01</p>
+                    </div>
+                    <div class="flex items-center gap-6">
+                        <div class="flex flex-col items-end">
+                            <span class="text-[9px] mono text-white/20 uppercase tracking-widest">Server Load</span>
+                            <span class="text-xs font-bold text-emerald-500">0.02ms Latency</span>
+                        </div>
+                        <div class="h-8 w-[1px] bg-white/10"></div>
+                        <div class="flex items-center gap-2 glass-panel px-3 py-1.5 rounded-full border-white/10">
+                            <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                            <span class="text-[10px] mono font-bold uppercase tracking-widest">Gemini-3-Flash Connected</span>
+                        </div>
+                    </div>
+                </header>
+
+                <main class="p-10 space-y-12 max-w-[1400px]">
+                    <section class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+                        <div class="xl:col-span-8 space-y-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-1.5 h-6 bg-indigo-500"></div>
+                                <h2 class="text-sm font-bold uppercase tracking-[0.3em] text-white/50">Scenario Input Console</h2>
+                            </div>
+                            <div class="glass-panel p-8 rounded-[40px] border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.4)] relative overflow-hidden group">
+                                <div class="absolute top-0 right-0 p-8 opacity-5">
+                                    <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                                </div>
+                                <textarea id="scenario-input" placeholder="Describe the upcoming demand shift... e.g. 'Unexpected cold front moving in, shift demand to hot beverages for 48h'" class="w-full bg-transparent border-none text-2xl font-bold placeholder:text-white/10 focus:ring-0 resize-none h-44 mb-6 leading-tight"></textarea>
+                                <div class="flex items-center justify-between border-t border-white/5 pt-8">
+                                    <div class="flex flex-wrap gap-4" id="quick-actions"></div>
+                                    <button id="btn-ignite" type="button" class="group flex items-center gap-4 bg-indigo-600 hover:bg-indigo-500 p-2 pr-8 rounded-full transition-all disabled:opacity-30 disabled:grayscale">
+                                        <div id="ignite-icon" class="w-12 h-12 bg-white rounded-full flex items-center justify-center transition-transform duration-500 group-hover:rotate-45">
+                                            <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                        </div>
+                                        <span class="text-xs font-bold uppercase tracking-widest">Ignite Logic</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="xl:col-span-4 space-y-6 h-full">
+                            <div class="flex items-center gap-3">
+                                <div class="w-1.5 h-6 bg-indigo-500/30"></div>
+                                <h2 class="text-sm font-bold uppercase tracking-[0.3em] text-white/30">Node Parameters</h2>
+                            </div>
+                            <div id="params-panel" class="glass-panel p-8 rounded-[40px] border-white/10 h-[368px] flex flex-col justify-between kinetic-border">
+                                <div class="flex flex-col items-center justify-center h-full text-center space-y-4">
+                                    <div class="w-12 h-12 border border-white/10 rounded-full flex items-center justify-center animate-pulse">
+                                        <div class="w-2 h-2 bg-indigo-500/40 rounded-full"></div>
+                                    </div>
+                                    <p class="text-[10px] mono uppercase text-white/20 tracking-[0.2em]">Awaiting Simulation Data</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="space-y-8">
+                        <div class="flex items-end justify-between">
+                            <div class="space-y-2">
+                                <h2 class="text-3xl font-bold tracking-tighter uppercase">Strategic <span class="text-white/40">Outlook</span></h2>
+                                <p id="inventory-count" class="text-sm text-white/30 mono">Predicted exhaustion matrices across ... key nodes.</p>
+                            </div>
+                            <div id="dashboard-stats" class="hidden md:flex gap-8"></div>
+                        </div>
+                        <div id="inventory-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-20"></div>
+                    </section>
+                </main>
+            </div>
+
+            <!-- Footer Global HUD -->
+            <footer class="fixed bottom-0 left-72 right-0 bg-[#0a0a0c]/90 backdrop-blur-md border-t border-white/5 px-8 py-2.5 flex items-center justify-between z-50">
+                <div class="flex gap-10">
+                    <div class="flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span>
+                        <span class="text-[9px] mono uppercase text-white/30 tracking-widest">Prediction Engine Live</span>
+                    </div>
+                    <div class="hidden sm:flex items-center gap-2">
+                        <span class="text-[9px] mono uppercase text-white/10 tracking-widest">System Load // 14%</span>
+                    </div>
+                </div>
+                <div class="text-[9px] mono uppercase text-white/20 tracking-[0.4em] flex items-center gap-4">
+                    <span id="footer-time"></span>
+                    <span>SpellStock Oracle v2.5-STABLE</span>
+                </div>
+            </footer>
+        </div>
+    </div>
+    <script>
+        (function () {
+            var el = document.getElementById('footer-time');
+            if (el) {
+                function tick() { el.textContent = new Date().toLocaleTimeString(); }
+                tick();
+                setInterval(tick, 1000);
+            }
+        })();
+    </script>
+    <script src="{{ url_for('static', filename='Backend/main.js') }}"></script>
 </body>
 </html>
