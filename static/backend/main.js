@@ -60,8 +60,14 @@
     state.currentView = viewName || 'oracle';
     if (DOM.oraclePanel) DOM.oraclePanel.classList.toggle('hidden', state.currentView !== 'oracle');
     if (DOM.inventoryHubPanel) DOM.inventoryHubPanel.classList.toggle('hidden', state.currentView !== 'inventory-hub');
-    if (DOM.reportsPanel) DOM.reportsPanel.classList.toggle('hidden', state.currentView !== 'reports');
-    if (DOM.forecastsPanel) DOM.forecastsPanel.classList.toggle('hidden', state.currentView !== 'forecasts');
+    if (DOM.reportsPanel) {
+      DOM.reportsPanel.classList.toggle('hidden', state.currentView !== 'reports');
+      DOM.reportsPanel.classList.toggle('panel-visible', state.currentView === 'reports');
+    }
+    if (DOM.forecastsPanel) {
+      DOM.forecastsPanel.classList.toggle('hidden', state.currentView !== 'forecasts');
+      DOM.forecastsPanel.classList.toggle('panel-visible', state.currentView === 'forecasts');
+    }
     renderSidebar();
     if (state.currentView === 'inventory-hub') {
       fetchRestaurantData().then(function () { renderInventoryHub(); });

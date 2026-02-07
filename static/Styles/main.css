@@ -137,7 +137,7 @@ body {
 }
 .collapsible-section .collapsible-body {
     overflow: hidden;
-    transition: max-height 0.3s ease, opacity 0.2s ease;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
 }
 .collapsible-section.collapsed .collapsible-body {
     max-height: 0 !important;
@@ -146,10 +146,117 @@ body {
     padding-bottom: 0;
 }
 .collapsible-section .collapse-icon {
-    transition: transform 0.2s ease;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
 }
 .collapsible-section.collapsed .collapse-icon {
     transform: rotate(-90deg);
+}
+.collapsible-section .collapsible-header {
+    transition: background 0.2s ease;
+}
+.collapsible-section .collapsible-header:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Reports & Forecasts — content indent so header/body don’t sit on panel edge */
+#reports-panel .collapsible-header,
+#reports-panel .collapsible-body,
+#forecasts-panel .collapsible-header,
+#forecasts-panel .collapsible-body {
+    padding-left: 2rem;
+}
+
+/* Reports & Forecasts — tables and cards */
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+}
+.report-table th,
+.report-table td {
+    text-align: left;
+    padding: 0.75rem 1.5rem;
+    vertical-align: middle;
+}
+.report-table th:first-child,
+.report-table td:first-child {
+    padding-left: 0;
+}
+.report-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: rgba(255, 255, 255, 0.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.report-table td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: rgba(248, 250, 252, 0.9);
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.report-table tbody tr {
+    transition: background 0.2s ease;
+}
+.report-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+.report-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.report-table .status-low { color: #f59e0b; }
+.report-table .status-critical { color: #ef4444; }
+.report-table .status-ok { color: #10b981; }
+
+.forecast-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.forecast-card:hover {
+    border-color: rgba(99, 102, 241, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+.forecast-card .label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.45); transition: color 0.2s ease; }
+.forecast-card .value { font-weight: 600; font-variant-numeric: tabular-nums; transition: color 0.2s ease; }
+.forecast-card:hover .value { color: rgba(255, 255, 255, 0.95); }
+
+/* Staggered entrance when opening Reports or Forecasts */
+@keyframes panelSectionFade {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+#reports-panel.panel-visible .space-y-5 > .collapsible-section,
+#forecasts-panel.panel-visible .space-y-5 > .collapsible-section {
+    animation: panelSectionFade 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+#reports-panel.panel-visible .space-y-5 > .collapsible-section:nth-child(1),
+#forecasts-panel.panel-visible .space-y-5 > .collapsible-section:nth-child(1) { animation-delay: 0.06s; }
+#reports-panel.panel-visible .space-y-5 > .collapsible-section:nth-child(2),
+#forecasts-panel.panel-visible .space-y-5 > .collapsible-section:nth-child(2) { animation-delay: 0.12s; }
+#reports-panel.panel-visible .space-y-5 > .collapsible-section:nth-child(3) { animation-delay: 0.18s; }
+#forecasts-panel.panel-visible .space-y-5 > .collapsible-section:nth-child(3) { animation-delay: 0.18s; }
+
+.panel-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+.report-section-title, .forecast-section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.875rem;
 }
 
 #login-view, #dashboard-view {

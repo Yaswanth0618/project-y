@@ -67,7 +67,7 @@
 
             <!-- Main Content -->
             <div class="flex-1 flex flex-col relative">
-                <header class="px-8 py-5 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#0a0a0c]/90 backdrop-blur-xl z-50">
+                <header class="px-8 py-3 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#0a0a0c]/90 backdrop-blur-xl z-50">
                     <div>
                         <h1 class="page-title text-lg font-bold text-white">Dashboard</h1>
                         <p class="chart-label text-[10px] text-white/40 mt-0.5">AI prediction · Stock & risk</p>
@@ -85,9 +85,9 @@
                     </div>
                 </header>
 
-                <main class="p-8 space-y-10 max-w-[1400px] flex-1">
+                <main class="px-8 pt-4 pb-8 space-y-6 max-w-[1400px] flex-1">
                     <!-- Oracle Dashboard panel -->
-                    <div id="oracle-panel" class="space-y-10">
+                    <div id="oracle-panel" class="space-y-6">
                     <section class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
                         <div class="xl:col-span-8 space-y-4">
                             <h2 class="section-title text-sm text-white/60">Scenario Input Console</h2>
@@ -221,69 +221,184 @@
                     </div>
 
                     <!-- Reports panel (hidden by default) -->
-                    <div id="reports-panel" class="hidden space-y-6 pb-16">
-                        <h2 class="section-title text-sm text-white/60">Reports</h2>
-                        <div class="collapsible-section glass-panel rounded-2xl overflow-hidden">
-                            <div class="collapsible-header px-6 py-4 border-b border-white/5" data-collapse-toggle>
-                                <h3 class="section-title text-sm text-white/70">Low Stock Report</h3>
-                                <svg class="collapse-icon w-5 h-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    <div id="reports-panel" class="hidden pb-16">
+                        <div class="panel-header-row">
+                            <h2 class="report-section-title">Reports</h2>
+                            <div class="flex items-center gap-2">
+                                <label for="reports-location-select" class="chart-label text-[10px] text-white/50">Location</label>
+                                <select id="reports-location-select" class="input-clean px-4 py-2 rounded-xl text-sm min-w-[160px]">
+                                    <option value="all">All locations</option>
+                                    <option value="main">Main Kitchen</option>
+                                    <option value="downtown">Downtown Branch</option>
+                                    <option value="harbor">Harbor View</option>
+                                </select>
                             </div>
-                            <div class="collapsible-body px-6 py-5" style="max-height: 500px;">
-                                <p class="chart-subtext text-white/40 mb-4">Items below par level by location.</p>
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-sm">
-                                        <thead><tr class="text-left text-white/50 border-b border-white/10"><th class="pb-2 pr-4">Item</th><th class="pb-2 pr-4">Location</th><th class="pb-2">Status</th></tr></thead>
-                                        <tbody id="report-low-stock" class="text-white/80">
-                                            <tr class="border-b border-white/5"><td class="py-2 pr-4">Heavy Cream</td><td class="py-2 pr-4">Main</td><td class="py-2 text-amber-400">Low</td></tr>
-                                            <tr class="border-b border-white/5"><td class="py-2 pr-4">Cherry Tomatoes</td><td class="py-2 pr-4">Downtown</td><td class="py-2 text-red-400">Critical</td></tr>
-                                        </tbody>
-                                    </table>
+                        </div>
+                        <div class="space-y-5">
+                            <div class="collapsible-section glass-panel rounded-2xl overflow-hidden">
+                                <div class="collapsible-header px-6 py-4 border-b border-white/5" data-collapse-toggle>
+                                    <h3 class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider">Low Stock Report</h3>
+                                    <svg class="collapse-icon w-5 h-5 text-white/50 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </div>
+                                <div class="collapsible-body px-6 py-5" style="max-height: 420px;">
+                                    <p class="chart-subtext text-[10px] text-white/40 mb-4">Items below par level by location.</p>
+                                    <div class="overflow-x-auto">
+                                        <table class="report-table" id="report-low-stock-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Item</th>
+                                                    <th>Location</th>
+                                                    <th class="num">Current</th>
+                                                    <th class="num">Par</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="report-low-stock">
+                                                <tr><td>Heavy Cream</td><td>Main Kitchen</td><td class="num">3 L</td><td class="num">8 L</td><td class="status-critical">Critical</td></tr>
+                                                <tr><td>Cherry Tomatoes</td><td>Downtown Branch</td><td class="num">5 kg</td><td class="num">12 kg</td><td class="status-low">Low</td></tr>
+                                                <tr><td>Extra Virgin Olive Oil</td><td>Harbor View</td><td class="num">2 L</td><td class="num">5 L</td><td class="status-low">Low</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="collapsible-section glass-panel rounded-2xl overflow-hidden">
-                            <div class="collapsible-header px-6 py-4 border-b border-white/5" data-collapse-toggle>
-                                <h3 class="section-title text-sm text-white/70">Usage Report</h3>
-                                <svg class="collapse-icon w-5 h-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            <div class="collapsible-section glass-panel rounded-2xl overflow-hidden">
+                                <div class="collapsible-header px-6 py-4 border-b border-white/5" data-collapse-toggle>
+                                    <h3 class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider">Usage Report</h3>
+                                    <svg class="collapse-icon w-5 h-5 text-white/50 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </div>
+                                <div class="collapsible-body px-6 py-5" style="max-height: 420px;">
+                                    <p class="chart-subtext text-[10px] text-white/40 mb-4">Consumption vs AI-predicted usage.</p>
+                                    <div class="overflow-x-auto">
+                                        <table class="report-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Item</th>
+                                                    <th>Location</th>
+                                                    <th class="num">Used</th>
+                                                    <th class="num">Predicted</th>
+                                                    <th class="num">Variance</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr><td>Heavy Cream</td><td>Main Kitchen</td><td class="num">12 L</td><td class="num">10 L</td><td class="num status-low">+20%</td></tr>
+                                                <tr><td>Flour</td><td>Downtown Branch</td><td class="num">24 kg</td><td class="num">26 kg</td><td class="num status-ok">−8%</td></tr>
+                                                <tr><td>Butter</td><td>Harbor View</td><td class="num">8 kg</td><td class="num">8 kg</td><td class="num status-ok">0%</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="collapsible-body px-6 py-5" style="max-height: 500px;">
-                                <p class="chart-subtext text-white/40 mb-4">Consumption vs predicted (AI).</p>
-                                <div class="space-y-2 text-sm text-white/70">Placeholder: usage vs forecast table will appear here.</div>
-                            </div>
-                        </div>
-                        <div class="collapsible-section glass-panel rounded-2xl overflow-hidden">
-                            <div class="collapsible-header px-6 py-4 border-b border-white/5" data-collapse-toggle>
-                                <h3 class="section-title text-sm text-white/70">Variance Report</h3>
-                                <svg class="collapse-icon w-5 h-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                            </div>
-                            <div class="collapsible-body px-6 py-5" style="max-height: 500px;">
-                                <p class="chart-subtext text-white/40 mb-4">Actual vs expected stock levels.</p>
-                                <div class="space-y-2 text-sm text-white/70">Placeholder: variance report table will appear here.</div>
+                            <div class="collapsible-section glass-panel rounded-2xl overflow-hidden">
+                                <div class="collapsible-header px-6 py-4 border-b border-white/5" data-collapse-toggle>
+                                    <h3 class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider">Variance Report</h3>
+                                    <svg class="collapse-icon w-5 h-5 text-white/50 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </div>
+                                <div class="collapsible-body px-6 py-5" style="max-height: 420px;">
+                                    <p class="chart-subtext text-[10px] text-white/40 mb-4">Actual vs expected stock levels (cycle count).</p>
+                                    <div class="overflow-x-auto">
+                                        <table class="report-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Item</th>
+                                                    <th>Location</th>
+                                                    <th class="num">Expected</th>
+                                                    <th class="num">Actual</th>
+                                                    <th class="num">Diff</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr><td>Chicken Breast</td><td>Main Kitchen</td><td class="num">40 kg</td><td class="num">38 kg</td><td class="num status-low">−2 kg</td></tr>
+                                                <tr><td>Mozzarella</td><td>Downtown Branch</td><td class="num">15 kg</td><td class="num">15 kg</td><td class="num status-ok">0</td></tr>
+                                                <tr><td>Basil</td><td>Harbor View</td><td class="num">2 kg</td><td class="num">1.5 kg</td><td class="num status-low">−0.5 kg</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Forecasts panel (hidden by default) -->
-                    <div id="forecasts-panel" class="hidden space-y-6 pb-16">
-                        <h2 class="section-title text-sm text-white/60">Forecasts</h2>
-                        <div class="collapsible-section glass-panel rounded-2xl overflow-hidden">
-                            <div class="collapsible-header px-6 py-4 border-b border-white/5" data-collapse-toggle>
-                                <h3 class="section-title text-sm text-white/70">Demand Forecast</h3>
-                                <svg class="collapse-icon w-5 h-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                            </div>
-                            <div class="collapsible-body px-6 py-5" style="max-height: 500px;">
-                                <p class="chart-subtext text-white/40 mb-4">AI-predicted demand for the next 7 days.</p>
-                                <div class="space-y-2 text-sm text-white/70">Placeholder: demand forecast chart/table will appear here.</div>
+                    <div id="forecasts-panel" class="hidden pb-16">
+                        <div class="panel-header-row">
+                            <h2 class="forecast-section-title">Forecasts</h2>
+                            <div class="flex items-center gap-2">
+                                <label for="forecasts-location-select" class="chart-label text-[10px] text-white/50">Location</label>
+                                <select id="forecasts-location-select" class="input-clean px-4 py-2 rounded-xl text-sm min-w-[160px]">
+                                    <option value="all">All locations</option>
+                                    <option value="main">Main Kitchen</option>
+                                    <option value="downtown">Downtown Branch</option>
+                                    <option value="harbor">Harbor View</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="collapsible-section glass-panel rounded-2xl overflow-hidden">
-                            <div class="collapsible-header px-6 py-4 border-b border-white/5" data-collapse-toggle>
-                                <h3 class="section-title text-sm text-white/70">Stockout Risk</h3>
-                                <svg class="collapse-icon w-5 h-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        <div class="space-y-5">
+                            <div class="collapsible-section glass-panel rounded-2xl overflow-hidden">
+                                <div class="collapsible-header px-6 py-4 border-b border-white/5" data-collapse-toggle>
+                                    <h3 class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider">Demand Forecast</h3>
+                                    <svg class="collapse-icon w-5 h-5 text-white/50 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </div>
+                                <div class="collapsible-body px-6 py-5" style="max-height: 420px;">
+                                    <p class="chart-subtext text-[10px] text-white/40 mb-4">AI-predicted demand for the next 7 days.</p>
+                                    <div class="overflow-x-auto">
+                                        <table class="report-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Item</th>
+                                                    <th>Location</th>
+                                                    <th>Day 1–3</th>
+                                                    <th>Day 4–5</th>
+                                                    <th>Day 6–7</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr><td>Heavy Cream</td><td>Main Kitchen</td><td>High</td><td>Med</td><td>Med</td></tr>
+                                                <tr><td>Flour</td><td>Downtown Branch</td><td>Med</td><td>High</td><td>High</td></tr>
+                                                <tr><td>Salmon</td><td>Harbor View</td><td>Low</td><td>Med</td><td>Med</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                                        <div class="forecast-card"><span class="label block mb-0.5">Horizon</span><span class="value">7 days</span></div>
+                                        <div class="forecast-card"><span class="label block mb-0.5">Updated</span><span class="value">Today</span></div>
+                                        <div class="forecast-card"><span class="label block mb-0.5">Model</span><span class="value">SpellStock AI</span></div>
+                                        <div class="forecast-card"><span class="label block mb-0.5">Confidence</span><span class="value">87%</span></div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="collapsible-body px-6 py-5" style="max-height: 500px;">
-                                <p class="chart-subtext text-white/40 mb-4">Predicted risk of stockout by item and location.</p>
-                                <div class="space-y-2 text-sm text-white/70">Placeholder: stockout risk matrix will appear here.</div>
+                            <div class="collapsible-section glass-panel rounded-2xl overflow-hidden">
+                                <div class="collapsible-header px-6 py-4 border-b border-white/5" data-collapse-toggle>
+                                    <h3 class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider">Stockout Risk</h3>
+                                    <svg class="collapse-icon w-5 h-5 text-white/50 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </div>
+                                <div class="collapsible-body px-6 py-5" style="max-height: 420px;">
+                                    <p class="chart-subtext text-[10px] text-white/40 mb-4">Predicted risk of stockout by item and location.</p>
+                                    <div class="overflow-x-auto">
+                                        <table class="report-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Item</th>
+                                                    <th>Location</th>
+                                                    <th class="num">Risk %</th>
+                                                    <th>Level</th>
+                                                    <th>Suggested action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr><td>Heavy Cream</td><td>Main Kitchen</td><td class="num">92</td><td class="status-critical">Critical</td><td class="text-white/60 text-xs">Reorder within 24h</td></tr>
+                                                <tr><td>Cherry Tomatoes</td><td>Downtown Branch</td><td class="num">68</td><td class="status-low">High</td><td class="text-white/60 text-xs">Schedule delivery</td></tr>
+                                                <tr><td>Butter</td><td>Harbor View</td><td class="num">22</td><td class="status-ok">Low</td><td class="text-white/60 text-xs">Monitor</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                                        <div class="forecast-card"><span class="label block mb-0.5">Critical items</span><span class="value status-critical">2</span></div>
+                                        <div class="forecast-card"><span class="label block mb-0.5">High risk</span><span class="value status-low">4</span></div>
+                                        <div class="forecast-card"><span class="label block mb-0.5">Horizon</span><span class="value">72 h</span></div>
+                                        <div class="forecast-card"><span class="label block mb-0.5">Last run</span><span class="value">2h ago</span></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
