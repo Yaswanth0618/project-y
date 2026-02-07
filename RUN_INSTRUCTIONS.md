@@ -83,14 +83,14 @@ The app will be available at `http://127.0.0.1:5000`.
 
 ## API Endpoints
 
-| Method | Endpoint                | Description                                      |
-|--------|-------------------------|--------------------------------------------------|
-| GET    | `/`                     | Main UI                                          |
-| POST   | `/api/simulate`         | Legacy scenario simulation                       |
-| GET    | `/api/inventory/restaurants` | Inventory Hub chart data                    |
-| **POST** | **`/run-inventory-check`** | **Full pipeline: classifier → alerts**       |
-| **GET**  | **`/alerts`**          | **Get all active alerts**                        |
-| **POST** | **`/chat`**            | **Manager chatbot (Gemini Q&A)**                 |
+| Method   | Endpoint                     | Description                            |
+| -------- | ---------------------------- | -------------------------------------- |
+| GET      | `/`                          | Main UI                                |
+| POST     | `/api/simulate`              | Legacy scenario simulation             |
+| GET      | `/api/inventory/restaurants` | Inventory Hub chart data               |
+| **POST** | **`/run-inventory-check`**   | **Full pipeline: classifier → alerts** |
+| **GET**  | **`/alerts`**                | **Get all active alerts**              |
+| **POST** | **`/chat`**                  | **Manager chatbot (Gemini Q&A)**       |
 
 ### POST /run-inventory-check
 
@@ -124,7 +124,13 @@ Edit `rules.json`:
 Edit `classifier_output.txt` — one JSON object per line:
 
 ```json
-{"item_id": "chicken_breast", "stockout_probability": 0.82, "surplus_probability": 0.10, "days_until_event": 2, "expected_units": 0}
+{
+  "item_id": "chicken_breast",
+  "stockout_probability": 0.82,
+  "surplus_probability": 0.1,
+  "days_until_event": 2,
+  "expected_units": 0
+}
 ```
 
 ## Key Design Principles
