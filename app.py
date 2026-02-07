@@ -170,6 +170,11 @@ def run_inventory_check():
     """
     global _active_alerts
     try:
+        # Check if Gemini API is configured
+        gemini_available = os.environ.get("GEMINI_API_KEY", "") != ""
+        if not gemini_available:
+            print("[inventory-check] Warning: GEMINI_API_KEY not configured — using deterministic fallback alerts")
+        
         # 1. Load classifier predictions (simulated external API)
         predictions = load_classifier_output()
 
@@ -190,6 +195,7 @@ def run_inventory_check():
                 'status': 'ok',
                 'message': 'No new alerts — all items are within normal parameters or recently alerted.',
                 'alerts': _active_alerts,
+                'gemini_available': gemini_available,
                 'pipeline_summary': {
                     'predictions_loaded': len(predictions),
                     'risk_events_generated': len(risk_events),
@@ -201,30 +207,42 @@ def run_inventory_check():
         # 5. Parallel: fetch Supabase context + Gemini alert for all events at once
         restaurant_id = rules.get("restaurant_id", 1)
         new_alerts = []
+        failed_items = []
         with ThreadPoolExecutor(max_workers=min(len(eligible_events), 8)) as pool:
             futures = {pool.submit(_build_alert_for_event, ev, restaurant_id): ev for ev in eligible_events}
             for future in as_completed(futures):
                 try:
                     new_alerts.append(future.result())
                 except Exception as exc:
-                    print(f"[inventory-check] Alert build failed for {futures[future].get('item_id')}: {exc}")
+                    item_id = futures[future].get('item_id', 'unknown')
+                    print(f"[inventory-check] Alert build failed for {item_id}: {exc}")
+                    failed_items.append(item_id)
 
         # Store alerts (append, dedup by item_id — latest wins)
         existing_ids = {a["risk_event"]["item_id"] for a in new_alerts}
         _active_alerts = [a for a in _active_alerts if a["risk_event"]["item_id"] not in existing_ids]
         _active_alerts.extend(new_alerts)
 
+        # Build response message
+        message = f'{len(new_alerts)} new alert(s) generated.'
+        if not gemini_available:
+            message += ' Note: Gemini API not configured — using deterministic fallback alerts.'
+        if failed_items:
+            message += f' Warning: {len(failed_items)} alert(s) failed to generate.'
+
         return jsonify({
             'status': 'ok',
-            'message': f'{len(new_alerts)} new alert(s) generated.',
+            'message': message,
             'new_alerts': new_alerts,
             'all_alerts': _active_alerts,
+            'gemini_available': gemini_available,
             'pipeline_summary': {
                 'predictions_loaded': len(predictions),
                 'risk_events_generated': len(risk_events),
                 'after_rule_engine': len(filtered_events),
                 'eligible_for_alert': len(eligible_events),
                 'alerts_generated': len(new_alerts),
+                'failed_alerts': len(failed_items),
             },
         })
 

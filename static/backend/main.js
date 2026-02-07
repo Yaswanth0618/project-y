@@ -897,7 +897,23 @@
       body: "{}",
     })
       .then(function (res) {
-        return res.ok ? res.json() : Promise.reject("Request failed");
+        if (!res.ok) {
+          return res.json().then(
+            function(data) {
+              return Promise.reject({
+                status: res.status,
+                error: data.error || "Request failed"
+              });
+            },
+            function() {
+              return Promise.reject({
+                status: res.status,
+                error: "Request failed"
+              });
+            }
+          );
+        }
+        return res.json();
       })
       .then(function (data) {
         var sum = data.pipeline_summary || {};
@@ -911,6 +927,13 @@
           DOM.sumAlertsSent.textContent =
             sum.eligible_for_alert || sum.alerts_generated || 0;
         renderAlerts(data.all_alerts || data.alerts || []);
+        
+        // Show warning message if Gemini is not available
+        if (data.gemini_available === false && DOM.alertsScanStatus) {
+          DOM.alertsScanStatus.textContent = 
+            "Scan complete (using fallback alerts — configure GEMINI_API_KEY for enhanced alerts)";
+        }
+        
         // Transition: hide hero, show results
         if (DOM.alertsInitial) DOM.alertsInitial.classList.add("hidden");
         if (DOM.alertsResults) DOM.alertsResults.classList.remove("hidden");
@@ -919,11 +942,28 @@
       })
       .catch(function (err) {
         console.error("Inventory check failed:", err);
+        var errorMsg = "Scan failed";
+        var detailMsg = "Error running inventory check.";
+        
+        if (typeof err === "object" && err !== null) {
+          if (err.status === 500) {
+            errorMsg = "Scan failed — server error";
+            detailMsg = err.error || "Internal server error. Check server logs for details.";
+          } else if (err.status === 404) {
+            errorMsg = "Scan failed — endpoint not found";
+            detailMsg = "The inventory check endpoint could not be found.";
+          } else if (err.error) {
+            detailMsg = err.error;
+          }
+        } else if (typeof err === "string") {
+          detailMsg = err;
+        }
+        
         if (DOM.alertsScanStatus)
-          DOM.alertsScanStatus.textContent = "Scan failed — check server logs";
+          DOM.alertsScanStatus.textContent = errorMsg;
         if (DOM.alertsList)
           DOM.alertsList.innerHTML =
-            '<div class="glass-panel p-6 text-center text-red-400 text-sm">Error running inventory check. Check server logs.</div>';
+            '<div class="glass-panel p-6 text-center text-red-400 text-sm">' + detailMsg + '</div>';
       })
       .finally(function () {
         btn.disabled = false;

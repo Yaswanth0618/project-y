@@ -127,12 +127,21 @@ Do NOT use JSON — respond in plain conversational text. Use bullet points if l
 # ---------- Gemini client ----------
 
 def _get_gemini_client():
-    """Create a Gemini client using the API key from env."""
+    """Create a Gemini client using the API key from env.
+    
+    Returns:
+        Client object if API key is valid, None if API key is missing/invalid.
+    """
     api_key = os.environ.get("GEMINI_API_KEY", "")
     if not api_key:
-        raise RuntimeError("GEMINI_API_KEY must be set")
-    from google import genai
-    return genai.Client(api_key=api_key)
+        print("[gemini_agent] GEMINI_API_KEY not set — using deterministic fallback")
+        return None
+    try:
+        from google import genai
+        return genai.Client(api_key=api_key)
+    except Exception as e:
+        print(f"[gemini_agent] Failed to initialize Gemini client: {e}")
+        return None
 
 
 def generate_alert(
@@ -141,6 +150,7 @@ def generate_alert(
 ) -> Dict[str, Any]:
     """
     Call Gemini to phrase a context-aware alert and suggest actions.
+    Falls back to deterministic alerts if Gemini is unavailable.
 
     Args:
         risk_event: Structured risk event dict.
@@ -149,9 +159,14 @@ def generate_alert(
     Returns:
         Dict with keys: alert_message, suggested_actions.
     """
+    client = _get_gemini_client()
+    
+    # Use fallback if client is not available
+    if client is None:
+        return _generate_fallback_alert(risk_event, historical_context)
+    
     from google.genai import types
 
-    client = _get_gemini_client()
     user_prompt = ALERT_USER_TEMPLATE.format(
         risk_event_json=json.dumps(risk_event, indent=2),
         historical_context_json=json.dumps(historical_context, indent=2),
@@ -177,38 +192,55 @@ def generate_alert(
         }
     except Exception as e:
         print(f"[gemini_agent] Alert generation error: {e}")
-        # Deterministic fallback — no LLM needed
-        event_type = risk_event.get("event_type", "RISK")
-        item = risk_event.get("item_id", "item")
-        conf = risk_event.get("confidence", 0)
-        days = risk_event.get("days_until", 0)
-        avg_use = historical_context.get("avg_daily_use", 0)
-        supply_est = historical_context.get("latest_days_of_supply_est")
-        trend = historical_context.get("trend", "unknown")
+        return _generate_fallback_alert(risk_event, historical_context)
 
-        what = f"avg daily usage {avg_use} units, trend {trend}"
-        if supply_est is not None:
-            what += f", {supply_est} days of supply remaining"
 
-        return {
-            "alert_message": (
-                f"⚠️ {item.replace('_', ' ').title()} — {event_type.replace('_', ' ').lower()} "
-                f"in ~{days} day(s) ({int(conf * 100)}% confidence). {what}."
-            ),
-            "suggested_actions": [
-                f"Review inventory levels — current supply est. {supply_est or 'N/A'} days.",
-                "Adjust next order based on recent usage trend.",
-            ],
-            "confidence": "medium" if conf >= 0.6 else "low",
-            "analysis": {
-                "what": what,
-                "why": f"{event_type.replace('_', ' ').lower()} risk detected",
-                "reorder_in_days": max(0, days - 1) if days else None,
-                "reorder_qty": None,
-                "promotion_discount_pct": None,
-                "max_safe_order_qty": None,
-            },
-        }
+def _generate_fallback_alert(
+    risk_event: Dict[str, Any],
+    historical_context: Dict[str, Any],
+) -> Dict[str, Any]:
+    """
+    Generate a deterministic fallback alert without using Gemini.
+    
+    Args:
+        risk_event: Structured risk event dict.
+        historical_context: Aggregated Supabase context dict.
+    
+    Returns:
+        Dict with keys: alert_message, suggested_actions, confidence, analysis.
+    """
+    # Deterministic fallback — no LLM needed
+    event_type = risk_event.get("event_type", "RISK")
+    item = risk_event.get("item_id", "item")
+    conf = risk_event.get("confidence", 0)
+    days = risk_event.get("days_until", 0)
+    avg_use = historical_context.get("avg_daily_use", 0)
+    supply_est = historical_context.get("latest_days_of_supply_est")
+    trend = historical_context.get("trend", "unknown")
+
+    what = f"avg daily usage {avg_use} units, trend {trend}"
+    if supply_est is not None:
+        what += f", {supply_est} days of supply remaining"
+
+    return {
+        "alert_message": (
+            f"⚠️ {item.replace('_', ' ').title()} — {event_type.replace('_', ' ').lower()} "
+            f"in ~{days} day(s) ({int(conf * 100)}% confidence). {what}."
+        ),
+        "suggested_actions": [
+            f"Review inventory levels — current supply est. {supply_est or 'N/A'} days.",
+            "Adjust next order based on recent usage trend.",
+        ],
+        "confidence": "medium" if conf >= 0.6 else "low",
+        "analysis": {
+            "what": what,
+            "why": f"{event_type.replace('_', ' ').lower()} risk detected",
+            "reorder_in_days": max(0, days - 1) if days else None,
+            "reorder_qty": None,
+            "promotion_discount_pct": None,
+            "max_safe_order_qty": None,
+        },
+    }
 
 
 def chat(
@@ -218,6 +250,7 @@ def chat(
 ) -> str:
     """
     Manager chatbot — answer operational questions grounded in data.
+    Falls back to a simple response if Gemini is unavailable.
 
     Args:
         question: The manager's question text.
@@ -228,6 +261,11 @@ def chat(
         Plain-text response string.
     """
     client = _get_gemini_client()
+    
+    # Use fallback if client is not available
+    if client is None:
+        return "Sorry, I'm not able to answer questions right now. The Gemini API is not configured. Please set GEMINI_API_KEY to enable the chatbot."
+    
     user_prompt = CHAT_USER_TEMPLATE.format(
         question=question,
         alerts_json=json.dumps(active_alerts, indent=2) if active_alerts else "No active alerts.",
