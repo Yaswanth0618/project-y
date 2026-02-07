@@ -268,3 +268,45 @@ body {
 #login-view, #dashboard-view {
     transition: opacity 0.5s ease-in-out;
 }
+
+/* ═══ AGENT AUTOPILOT STYLES ═══ */
+.autopilot-mode-btn {
+    color: rgba(255, 255, 255, 0.35);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.autopilot-mode-btn:hover {
+    color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.05);
+}
+.autopilot-mode-btn.active {
+    background: rgba(99, 102, 241, 0.25);
+    color: rgb(129, 140, 248);
+    border-radius: 9999px;
+}
+.autopilot-mode-btn[data-mode="full"].active {
+    background: rgba(16, 185, 129, 0.2);
+    color: rgb(52, 211, 153);
+}
+.autopilot-mode-btn[data-mode="off"].active {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.agent-row td {
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+    vertical-align: middle;
+}
+
+#agent-queue-table th[data-sort]:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+#agent-toast {
+    animation: agentToastIn 0.3s ease forwards;
+}
+@keyframes agentToastIn {
+    from { transform: translateY(10px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+}
