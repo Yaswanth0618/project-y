@@ -166,6 +166,12 @@ body {
     padding-left: 2rem;
 }
 
+/* Dashboard Reorder Alerts & Expiring Soon — title bar and content indent */
+#oracle-panel .collapsible-section .collapsible-header,
+#oracle-panel .collapsible-section .collapsible-body {
+    padding-left: 2rem;
+}
+
 /* Reports & Forecasts — tables and cards */
 .report-table {
     width: 100%;
