@@ -34,5 +34,24 @@ def api_simulate():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/inventory/restaurants', methods=['GET'])
+def api_restaurant_inventory():
+    """Return inventory data per restaurant for Inventory Hub charts."""
+    try:
+        # Use different demand/horizon per restaurant to simulate varied data
+        restaurants = [
+            {'id': 'main', 'name': 'Main Kitchen', 'params': {'demand_multiplier': 1.0, 'horizon_hours': 72}},
+            {'id': 'downtown', 'name': 'Downtown Branch', 'params': {'demand_multiplier': 1.2, 'horizon_hours': 48}},
+            {'id': 'harbor', 'name': 'Harbor View', 'params': {'demand_multiplier': 0.8, 'horizon_hours': 72}},
+        ]
+        out = []
+        for r in restaurants:
+            inv = simulate_risk(r['params'])
+            out.append({'id': r['id'], 'name': r['name'], 'inventory': inv})
+        return jsonify({'restaurants': out})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
