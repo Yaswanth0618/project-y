@@ -12,6 +12,8 @@
         rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='Styles/main.css') }}">
 </head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 
 <body class="noise-overlay bg-[#111110] text-[#fef3c7] overflow-x-hidden min-h-screen">
     <div id="root">
@@ -680,6 +682,8 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <script src="../static/backend/alerts.js"></script>
 
                     <!-- ═══ ALERTS PANEL ═══ -->
                     <div id="alerts-panel" class="hidden pb-16">
@@ -718,53 +722,71 @@
                                 </p>
                             </div>
                         </div>
+                        <style>
+                            .mini-card {
+                                background: rgba(255, 255, 255, 0.04);
+                                border: 1px solid rgba(255, 255, 255, 0.08);
+                                border-radius: 0.75rem;
+                                padding: 0.35rem 0.4rem;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                color: rgba(255, 255, 255, 0.6);
+                            }
 
+                            .mini-card b {
+                                color: white;
+                                font-size: 0.75rem;
+                            }
+                        </style>
 
                         <!-- ═══ RESULTS STATE (hidden until scan completes) ═══ -->
-                        <div id="alerts-results" class="hidden relative" data-chart-id="alerts-summary">
-                            <div class="chart-info-tooltip hidden"></div>
-                            <div class="panel-header-row mb-6">
-                                <div>
-                                    <h2 class="section-title text-sm text-white/60">AI Risk Alerts</h2>
-                                    <p class="chart-subtext text-[10px] text-white/30 mt-1">AI-generated alerts from
-                                        your live inventory data</p>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <button type="button" class="chart-info-btn chart-info-btn--inline"
-                                        aria-label="Explain alerts">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
-                                        </svg>
-                                    </button>
-                                    <button id="btn-run-check-again" type="button"
-                                        class="btn-primary flex items-center gap-3 py-2 pl-2 pr-6 rounded-full text-sm font-semibold">
-                                        <div id="check-icon-again"
-                                            class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-black">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                            </svg>
+                        <!-- ═══ RESULTS STATE ═══ -->
+                        <div id="alerts-results" class="hidden h-[calc(100vh-8rem)]">
+
+                            <!-- Two-column fixed layout -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+
+                                <!-- STOCKOUTS -->
+                                <div class="flex flex-col h-full rounded-2xl border border-white/10 bg-white/5">
+                                    <div class="p-4 border-b border-white/10">
+                                        <h3 class="text-sm font-semibold text-indigo-300">Stockout Alerts</h3>
+
+                                        <!-- Mini summary -->
+                                        <div class="grid grid-cols-4 gap-2 mt-3 text-[10px]">
+                                            <div class="mini-card"><span>Pred</span><b id="s-pred">-</b></div>
+                                            <div class="mini-card"><span>Risk</span><b id="s-risk">-</b></div>
+                                            <div class="mini-card"><span>Rules</span><b id="s-rules">-</b></div>
+                                            <div class="mini-card"><span>Alerts</span><b id="s-alerts">-</b></div>
                                         </div>
-                                        <span>Re-Scan</span>
-                                    </button>
+                                    </div>
+
+                                    <!-- Scrollable list -->
+                                    <div id="alerts-stockout" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
                                 </div>
+
+                                <!-- WASTAGE -->
+                                <div class="flex flex-col h-full rounded-2xl border border-white/10 bg-white/5">
+                                    <div class="p-4 border-b border-white/10">
+                                        <h3 class="text-sm font-semibold text-emerald-300">Wastage Alerts</h3>
+
+                                        <!-- Mini summary -->
+                                        <div class="grid grid-cols-4 gap-2 mt-3 text-[10px]">
+                                            <div class="mini-card"><span>Pred</span><b id="w-pred">-</b></div>
+                                            <div class="mini-card"><span>Risk</span><b id="w-risk">-</b></div>
+                                            <div class="mini-card"><span>Rules</span><b id="w-rules">-</b></div>
+                                            <div class="mini-card"><span>Alerts</span><b id="w-alerts">-</b></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Scrollable list -->
+                                    <div id="alerts-waste" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+                                </div>
+
                             </div>
-                            <!-- Pipeline summary cards -->
-                            <div id="pipeline-summary" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                                <div class="forecast-card"><span class="label block mb-0.5">Predictions</span><span
-                                        class="value" id="sum-predictions">-</span></div>
-                                <div class="forecast-card"><span class="label block mb-0.5">Risk Events</span><span
-                                        class="value" id="sum-risk-events">-</span></div>
-                                <div class="forecast-card"><span class="label block mb-0.5">After Rules</span><span
-                                        class="value" id="sum-after-rules">-</span></div>
-                                <div class="forecast-card"><span class="label block mb-0.5">Alerts Sent</span><span
-                                        class="value" id="sum-alerts-sent">-</span></div>
-                            </div>
-                            <!-- Alert cards container -->
-                            <div id="alerts-list" class="space-y-4"></div>
                         </div>
-                    </div>
+
+
 
                     <!-- ═══ AGENT COPILOT PANEL ═══ -->
                     <div id="agent-panel" class="hidden pb-16">
@@ -787,6 +809,7 @@
                             </div>
                         </div>
 
+                            
                         <!-- Agent Stats -->
                         <div id="copilot-stats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                             <div class="forecast-card"><span class="label block mb-0.5">Tool Calls</span><span
@@ -799,6 +822,21 @@
                                     class="value text-red-400" id="copilot-stat-alerts">0</span></div>
                         </div>
 
+                            <!-- Command Input -->
+                            <div class="glass-panel p-4 mb-6 flex items-center gap-3">
+                                <div class="flex-1">
+                                    <input id="agent-command-input" type="text"
+                                        placeholder="Operator command... e.g. 'Fix top 3 stockout alerts' or 'Draft PO for chicken'"
+                                        class="input-clean w-full px-4 py-3 rounded-xl text-sm" />
+                                </div>
+                                <button id="btn-agent-command" type="button"
+                                    class="btn-primary w-10 h-10 rounded-full flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </button>
+                            </div>
                         <!-- Quick Prompts -->
                         <div class="flex flex-wrap gap-2 mb-4">
                             <button

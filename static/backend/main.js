@@ -1511,17 +1511,14 @@
     });
   }
 
-  // ═══ Alerts panel: Run Inventory Check buttons ═══
-  if (DOM.btnRunCheck) {
-    DOM.btnRunCheck.addEventListener("click", function () {
-      handleRunCheck(false);
+  // ═══ Dashboard: View More button ═══
+  var btnViewInventory = document.getElementById("btn-view-inventory");
+  if (btnViewInventory) {
+    btnViewInventory.addEventListener("click", function () {
+      setView("inventory-hub");
     });
   }
-  if (DOM.btnRunCheckAgain) {
-    DOM.btnRunCheckAgain.addEventListener("click", function () {
-      handleRunCheck(true);
-    });
-  }
+
 
   // ═══ Chat panel: Send button + Enter key ═══
   if (DOM.btnChatSend) {
