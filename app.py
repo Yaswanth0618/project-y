@@ -4,6 +4,7 @@ SpellStock AI | Predictive Inventory — Flask app.
 Endpoints:
   GET  /                        → main UI
   POST /api/simulate            → legacy scenario simulation
+  POST /api/gemini_explain      → Gemini proxy for frontend alert explanations
   GET  /api/inventory/restaurants → Inventory Hub charts
   POST /run-inventory-check     → full pipeline: classifier → risk → rules → eligibility → Gemini
   GET  /alerts                  → current active alerts
@@ -139,6 +140,72 @@ def api_simulate():
         return jsonify({'params': params, 'inventory': inventory})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/gemini_explain', methods=['POST'])
+def api_gemini_explain():
+    """
+    Gemini proxy for frontend alerts.js — generate a 3-4 sentence explanation
+    for a stockout/waste alert.
+    
+    Request body:
+        ingredient_name, alert_type, restaurant_id, city, concept,
+        stockout, waste, eta_hours_stockout, model (optional)
+    
+    Response:
+        { "text": "..." }
+    """
+    data = request.get_json() or {}
+    
+    ingredient = data.get("ingredient_name", "Unknown ingredient")
+    alert_type = data.get("alert_type", "stockout")
+    stockout = data.get("stockout", 0)
+    waste = data.get("waste", 0)
+    eta_hours = data.get("eta_hours_stockout", 0)
+    city = data.get("city", "")
+    concept = data.get("concept", "")
+    restaurant_id = data.get("restaurant_id", "")
+    
+    # Build a short prompt for Gemini
+    if alert_type == "stockout":
+        context = f"Stockout probability is {stockout:.0%}. ETA to stockout: ~{int(eta_hours)} hours."
+    else:
+        context = f"Predicted waste: ~{waste:.1f} units."
+    
+    prompt = f"""You are an inventory management AI assistant. Write a brief, actionable 2-3 sentence explanation for a restaurant manager about this alert.
+
+Ingredient: {ingredient}
+Alert Type: {alert_type.upper()}
+{context}
+Location: {city} ({concept})
+Restaurant ID: {restaurant_id}
+
+Be specific, mention the ingredient name, and suggest one concrete action. Do not use JSON — respond with plain text only."""
+
+    try:
+        from google import genai
+        from google.genai import types
+        
+        api_key = os.environ.get("GEMINI_API_KEY", "")
+        if not api_key:
+            # Fallback if no API key
+            fallback = f"Risk is elevated for {ingredient}. Review current on-hand levels and consider placing an order soon to avoid disruption."
+            return jsonify({"text": fallback})
+        
+        client = genai.Client(api_key=api_key)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                max_output_tokens=150,
+            ),
+        )
+        text = getattr(response, "text", "") or ""
+        return jsonify({"text": text.strip()})
+    except Exception as e:
+        print(f"[api_gemini_explain] Error: {e}")
+        fallback = f"Risk is elevated for {ingredient}. Review on-hand vs demand. Consider ordering soon to reduce disruption."
+        return jsonify({"text": fallback})
 
 
 @app.route('/api/inventory/restaurants', methods=['GET'])
