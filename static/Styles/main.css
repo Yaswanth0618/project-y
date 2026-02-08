@@ -1,14 +1,22 @@
 :root {
-    --bg-deep: #0a0a0c;
-    --accent-glow: rgba(99, 102, 241, 0.12);
-    --glass-bg: rgba(255, 255, 255, 0.04);
-    --glass-border: rgba(255, 255, 255, 0.06);
+    --bg-deep: #111110;
+    --bg-surface: #1a1917;
+    --accent-warm: #d97706;
+    --accent-glow: rgba(217, 119, 6, 0.12);
+    --accent-gold: #f59e0b;
+    --accent-copper: #b45309;
+    --glass-bg: rgba(255, 248, 235, 0.03);
+    --glass-border: rgba(255, 248, 235, 0.07);
+    --text-warm: #fef3c7;
+    --sage: #6b8f71;
+    --terracotta: #c2703e;
 }
 
 body {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background: var(--bg-deep);
 }
 
 .mono {
@@ -24,27 +32,33 @@ body {
 }
 
 .chart-heading {
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
     font-weight: 600;
 }
 
 .chart-label {
-    letter-spacing: 0.1em;
+    letter-spacing: 0.06em;
 }
 
 .chart-subtext {
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
 }
 
 /* Section titles */
 .section-title {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Outfit', sans-serif;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.01em;
 }
 
 .page-title {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.title-poppins {
+    font-family: 'Poppins', sans-serif !important;
     font-weight: 700;
     letter-spacing: -0.01em;
 }
@@ -67,8 +81,8 @@ body {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border);
-    border-radius: 24px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 248, 235, 0.03);
 }
 
 .kinetic-border {
@@ -83,9 +97,9 @@ body {
     left: 0;
     width: 100%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, #6366f1, transparent);
+    background: linear-gradient(90deg, transparent, var(--accent-warm), transparent);
     transform: translateX(-100%);
-    animation: scan 3s infinite linear;
+    animation: scan 4s infinite linear;
 }
 
 @keyframes scan {
@@ -111,11 +125,15 @@ body {
 }
 
 .text-glow-red {
-    text-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+    text-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+}
+
+.text-glow-amber {
+    text-shadow: 0 0 15px rgba(217, 119, 6, 0.45);
 }
 
 .text-glow-blue {
-    text-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+    text-shadow: 0 0 15px rgba(217, 119, 6, 0.35);
 }
 
 /* Custom Scrollbar */
@@ -138,17 +156,17 @@ body {
 
 /* Clean inputs and buttons */
 .input-clean {
-    font-family: 'Space Grotesk', sans-serif;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #f8fafc;
+    font-family: 'Inter', sans-serif;
+    background: rgba(255, 248, 235, 0.04);
+    border: 1px solid rgba(255, 248, 235, 0.08);
+    color: #fef3c7;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input-clean:focus {
     outline: none;
-    border-color: rgba(99, 102, 241, 0.5);
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+    border-color: rgba(217, 119, 6, 0.5);
+    box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.12);
 }
 
 .input-clean::placeholder {
@@ -156,8 +174,8 @@ body {
 }
 
 .btn-primary {
-    font-family: 'Space Grotesk', sans-serif;
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
     color: white;
     border: none;
     transition: opacity 0.2s, transform 0.15s;
@@ -169,6 +187,20 @@ body {
 
 .btn-primary:active:not(:disabled) {
     transform: scale(0.98);
+}
+
+.btn-view-more {
+    font-family: 'Inter', sans-serif;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-view-more:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);
+}
+
+.btn-view-more:active {
+    transform: translateY(0);
 }
 
 /* Collapsible sections — minimize/maximize friendly */
@@ -290,17 +322,18 @@ body {
 }
 
 .forecast-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(255, 248, 235, 0.03);
+    border: 1px solid rgba(255, 248, 235, 0.06);
     border-radius: 12px;
-    padding: 1rem 1.25rem;
-    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    padding: 1.25rem 1.5rem;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
 .forecast-card:hover {
-    border-color: rgba(99, 102, 241, 0.25);
+    border-color: rgba(217, 119, 6, 0.25);
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    background: rgba(255, 248, 235, 0.05);
 }
 
 .forecast-card .label {
@@ -312,13 +345,38 @@ body {
 }
 
 .forecast-card .value {
-    font-weight: 600;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease, transform 0.2s ease;
+    letter-spacing: -0.02em;
 }
 
 .forecast-card:hover .value {
     color: rgba(255, 255, 255, 0.95);
+    transform: scale(1.02);
+}
+
+.forecast-card svg {
+    transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.forecast-card:hover svg {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 6px currentColor);
+}
+
+/* Compact horizontal stat tiles */
+.grid-rows-2 .forecast-card {
+    min-height: 85px;
+}
+
+.grid-rows-2 .forecast-card:hover {
+    transform: translateX(4px);
+}
+
+/* View More button positioned below stat tiles */
+.flex-col>.grid-rows-2 {
+    flex: 1;
 }
 
 /* Staggered entrance when opening Reports or Forecasts */
@@ -368,11 +426,11 @@ body {
 
 .report-section-title,
 .forecast-section-title {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Outfit', sans-serif;
     font-weight: 600;
-    letter-spacing: 0.06em;
-    color: rgba(255, 255, 255, 0.65);
-    font-size: 0.875rem;
+    letter-spacing: 0.01em;
+    color: rgba(255, 248, 235, 0.65);
+    font-size: 1rem;
 }
 
 #login-view,
@@ -393,8 +451,8 @@ body {
 }
 
 .autopilot-mode-btn.active {
-    background: rgba(99, 102, 241, 0.25);
-    color: rgb(129, 140, 248);
+    background: rgba(217, 119, 6, 0.25);
+    color: rgb(245, 158, 11);
     border-radius: 9999px;
 }
 
@@ -431,5 +489,106 @@ body {
     to {
         transform: translateY(0);
         opacity: 1;
+    }
+}
+
+/* ── Chart Info Button & Tooltip ── */
+.chart-info-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    opacity: 0;
+}
+
+/* Inline variant: sits in flow next to chevron, not absolute */
+.chart-info-btn--inline {
+    position: static;
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+[data-chart-id]:hover .chart-info-btn,
+.chart-info-btn:focus {
+    opacity: 1;
+}
+
+.chart-info-btn:hover,
+.chart-info-btn:focus {
+    background: rgba(217, 119, 6, 0.15);
+    border-color: rgba(217, 119, 6, 0.4);
+    color: #f59e0b;
+    transform: scale(1.1);
+}
+
+.chart-info-tooltip {
+    position: absolute;
+    top: 40px;
+    right: 12px;
+    z-index: 20;
+    max-width: 340px;
+    min-width: 240px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(217, 119, 6, 0.2);
+    background: rgba(17, 17, 16, 0.96);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.02);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.7);
+    animation: tooltipFadeIn 0.2s ease;
+}
+
+.chart-info-tooltip.hidden {
+    display: none;
+}
+
+.chart-info-tooltip .tooltip-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(245, 158, 11, 0.6);
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.chart-info-tooltip .tooltip-loading svg {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
     }
 }
