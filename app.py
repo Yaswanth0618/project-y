@@ -1,5 +1,5 @@
 """
-SpellStock AI | Predictive Inventory — Flask app.
+jai SpellStock AI | Predictive Inventory — Flask app.
 
 Endpoints:
   GET  /                        → main UI
@@ -54,6 +54,7 @@ from pipeline.agent.executor import (
     auto_approve_and_execute,
 )
 from pipeline.agent import audit as agent_audit
+from pipeline.agent.copilot import run_copilot, get_session_history, clear_session
 
 # ── In-memory alert store (survives until restart) ────────────────────────────
 _active_alerts: list = []
@@ -143,20 +144,143 @@ def api_simulate():
 
 @app.route('/api/inventory/restaurants', methods=['GET'])
 def api_restaurant_inventory():
-    """Return inventory data per restaurant for Inventory Hub charts."""
+    """Return inventory data per restaurant for Inventory Hub charts - from Supabase."""
     try:
-        restaurants = [
-            {'id': 'main', 'name': 'Main Kitchen', 'params': {'demand_multiplier': 1.0, 'horizon_hours': 72}},
-            {'id': 'downtown', 'name': 'Downtown Branch', 'params': {'demand_multiplier': 1.2, 'horizon_hours': 48}},
-            {'id': 'harbor', 'name': 'Harbor View', 'params': {'demand_multiplier': 0.8, 'horizon_hours': 72}},
-        ]
+        from pipeline.supabase_client import _get_client
+        from datetime import datetime, timedelta
+        from collections import defaultdict
+        
+        client = _get_client()
+        
+        # Fetch recent data
+        cutoff = (datetime.utcnow() - timedelta(days=1095)).strftime("%Y-%m-%d")
+        
+        print(f"[INVENTORY-HUB] Fetching data since {cutoff}")
+        
+        response = client.table("DataPoints").select("*").gte("date", cutoff).order("date", desc=True).limit(1000).execute()
+        rows = response.data if response.data else []
+        
+        print(f"[INVENTORY-HUB] Found {len(rows)} rows from Supabase")
+        
+        if not rows:
+            print("[INVENTORY-HUB] No data found")
+            return jsonify({'restaurants': []}), 200
+        
+        # Print sample to see restaurant IDs
+        if rows:
+            sample_ids = set(r.get('restaurant_id') for r in rows[:20])
+            print(f"[INVENTORY-HUB] Sample restaurant IDs found: {sample_ids}")
+        
+        # Group by restaurant
+        by_restaurant = defaultdict(lambda: defaultdict(list))
+        for row in rows:
+            rest_id = row.get('restaurant_id')
+            ingredient = row.get('ingredient_name', 'Unknown')
+            if ingredient and ingredient != 'Unknown' and rest_id is not None:
+                by_restaurant[rest_id][ingredient].append(row)
+        
+        print(f"[INVENTORY-HUB] Grouped into {len(by_restaurant)} restaurants")
+        
+        # Helper function to map restaurant IDs to info
+        def get_restaurant_info(rest_id):
+            """Map restaurant_id to display info"""
+            # Try as int first
+            try:
+                rid = int(rest_id)
+            except (ValueError, TypeError):
+                rid = rest_id
+            
+            # Mapping of all known restaurant IDs
+            mapping = {
+                1: {'id': 'main', 'name': 'Main Kitchen'},
+                2: {'id': 'downtown', 'name': 'Downtown Branch'},
+                3: {'id': 'harbor', 'name': 'Harbor View'},
+                4: {'id': 'location4', 'name': 'Westside Location'},
+                5: {'id': 'location5', 'name': 'Eastside Location'},
+                # String versions
+                '1': {'id': 'main', 'name': 'Main Kitchen'},
+                '2': {'id': 'downtown', 'name': 'Downtown Branch'},
+                '3': {'id': 'harbor', 'name': 'Harbor View'},
+                '4': {'id': 'location4', 'name': 'Westside Location'},
+                '5': {'id': 'location5', 'name': 'Eastside Location'},
+            }
+            result = mapping.get(rid)
+            if not result:
+                result = {'id': f'loc{rid}', 'name': f'Restaurant {rid}'}
+            print(f"[INVENTORY-HUB] Mapped restaurant_id {rest_id} -> {result['name']}")
+            return result
+        
+        # Build output structure
         out = []
-        for r in restaurants:
-            inv = simulate_risk(r['params'])
-            out.append({'id': r['id'], 'name': r['name'], 'inventory': inv})
+        for rest_id, ingredients in by_restaurant.items():
+            rest_info = get_restaurant_info(rest_id)
+            
+            inventory = []
+            for ingredient_name, items in ingredients.items():
+                if not items:
+                    continue
+                    
+                # Sort by date to get latest
+                items_sorted = sorted(items, key=lambda x: x.get('date', ''), reverse=True)
+                latest = items_sorted[0]
+                
+                # Calculate metrics from recent data
+                recent_7 = items_sorted[:7]
+                avg_used = sum(float(i.get('used_qty', 0) or 0) for i in recent_7) / max(len(recent_7), 1)
+                avg_on_hand = sum(float(i.get('ending_on_hand', 0) or 0) for i in recent_7) / max(len(recent_7), 1)
+                
+                current_stock = float(latest.get('ending_on_hand', 0) or 0)
+                par_level = max(avg_on_hand * 1.5, 10)
+                days_of_supply = (current_stock / avg_used) if avg_used > 0 else 999
+                
+                # Determine risk status
+                if days_of_supply < 2:
+                    status = 'CRITICAL'
+                    risk_percent = 90
+                elif days_of_supply < 4:
+                    status = 'HIGH'
+                    risk_percent = 70
+                elif days_of_supply < 7:
+                    status = 'MODERATE'
+                    risk_percent = 40
+                else:
+                    status = 'LOW'
+                    risk_percent = 10
+                
+                inventory.append({
+                    'ingredient': ingredient_name,
+                    'currentStock': round(current_stock, 1),
+                    'parLevel': round(par_level, 1),
+                    'unit': 'units',
+                    'daysOfSupply': round(days_of_supply, 1),
+                    'status': status,
+                    'riskPercent': risk_percent,
+                    'avgDailyUse': round(avg_used, 1),
+                    'reorderPoint': round(par_level * 0.6, 1)
+                })
+            
+            if inventory:  # Only add restaurants that have inventory data
+                print(f"[INVENTORY-HUB] Restaurant {rest_info['name']} has {len(inventory)} items")
+                out.append({
+                    'id': rest_info['id'],
+                    'name': rest_info['name'],
+                    'inventory': sorted(inventory, key=lambda x: x['riskPercent'], reverse=True)
+                })
+        
+        # Sort restaurants by ID
+        out.sort(key=lambda x: x['id'])
+        
+        total_items = sum(len(r['inventory']) for r in out)
+        print(f"[INVENTORY-HUB] Returning {len(out)} restaurants with {total_items} total items")
+        
         return jsonify({'restaurants': out})
+        
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        print(f"[INVENTORY-HUB] ERROR: {str(e)}")
+        # Return empty data instead of error to prevent breaking the UI
+        return jsonify({'restaurants': []}), 200
 
 
 # ═══════════════════════  NEW PIPELINE ROUTES  ═══════════════════════════════
@@ -341,119 +465,713 @@ def home_summary():
         "has_data": len(outlook) > 0,
     })
 
-
-@app.route('/chat', methods=['POST'])
-def chat_endpoint():
+@app.route('/api/reports', methods=['GET'])
+def api_reports():
     """
-    Manager chatbot — Gemini answers questions grounded in alert and Supabase data.
-    Body: { "message": "Why did I get this alert?" }
+    Generate reports from Supabase DataPoints table.
+    Query params: ?location=all|main|downtown|harbor
     """
-    data = request.get_json() or {}
-    message = (data.get('message') or '').strip()
-    if not message:
-        return jsonify({'error': 'Missing message'}), 400
-
     try:
-        # Build context: combine all active alert contexts
-        combined_context = {}
-        if _active_alerts:
-            # Provide a merged view of all historical contexts
-            for alert in _active_alerts:
-                ctx = alert.get("historical_context", {})
-                item_id = alert["risk_event"]["item_id"]
-                combined_context[item_id] = ctx
-
-        response_text = gemini_chat(
-            question=message,
-            active_alerts=_active_alerts,
-            context_data=combined_context,
-        )
-        return jsonify({'response': response_text})
+        from pipeline.supabase_client import _get_client
+        
+        location = request.args.get('location', 'all')
+        
+        # Map location to restaurant_id
+        location_map = {
+            'main': 1,
+            'downtown': 2,
+            'harbor': 3,
+            'all': None
+        }
+        restaurant_id = location_map.get(location)
+        
+        client = _get_client()
+        
+        # Fetch recent data - look back 3 years to handle historical data
+        from datetime import datetime, timedelta
+        cutoff = (datetime.utcnow() - timedelta(days=1095)).strftime("%Y-%m-%d")  # 3 years
+        
+        print(f"[REPORTS] Fetching data since {cutoff}, location={location}, restaurant_id={restaurant_id}")
+        
+        query = client.table("DataPoints").select("*").gte("date", cutoff)
+        
+        if restaurant_id:
+            query = query.eq("restaurant_id", restaurant_id)
+        
+        response = query.order("date", desc=True).limit(500).execute()
+        rows = response.data if response.data else []
+        
+        print(f"[REPORTS] Found {len(rows)} rows from Supabase")
+        
+        if not rows:
+            print("[REPORTS] No rows found - returning empty reports")
+            return jsonify({
+                'low_stock': [],
+                'usage': [],
+                'variance': [],
+                'message': 'No data found in the specified date range'
+            })
+        
+        # Print first row to see structure
+        if rows:
+            print(f"[REPORTS] Sample row keys: {list(rows[0].keys())}")
+            print(f"[REPORTS] Sample ingredient: {rows[0].get('ingredient_name')}")
+        
+        # Process data for three reports
+        low_stock = []
+        usage = []
+        variance = []
+        
+        # Group by ingredient and restaurant
+        from collections import defaultdict
+        by_ingredient = defaultdict(list)
+        for row in rows:
+            ingredient = row.get('ingredient_name')
+            rest_id = row.get('restaurant_id')
+            if ingredient:  # Only process rows with ingredient name
+                key = (ingredient, rest_id)
+                by_ingredient[key].append(row)
+        
+        print(f"[REPORTS] Grouped into {len(by_ingredient)} unique ingredient-location combos")
+        
+        for (ingredient_name, rest_id), items in by_ingredient.items():
+            if not items:
+                continue
+            
+            # Sort by date to get latest first
+            items_sorted = sorted(items, key=lambda x: x.get('date', ''), reverse=True)
+            latest = items_sorted[0]
+            
+            location_name = {1: 'Main Kitchen', 2: 'Downtown Branch', 3: 'Harbor View', '1': 'Main Kitchen', '2': 'Downtown Branch', '3': 'Harbor View'}.get(rest_id) or {  # Fallback based on city field if available
+            'Downtown': 'Downtown Branch','Harbor': 'Harbor View'}.get(latest.get('city', ''), f'Location {rest_id}')
+            
+            # Calculate averages from last 7 days of data
+            recent_items = items_sorted[:7]
+            
+            avg_used = sum(float(i.get('used_qty', 0) or 0) for i in recent_items) / len(recent_items) if recent_items else 0
+            avg_on_hand = sum(float(i.get('ending_on_hand', 0) or 0) for i in recent_items) / len(recent_items) if recent_items else 0
+            
+            current_stock = float(latest.get('ending_on_hand', 0) or 0)
+            par_level = max(avg_on_hand * 1.5, 10)  # Par is 1.5x average, minimum 10
+            
+            # LOW STOCK REPORT - show items below par level
+            if current_stock < par_level * 0.8:  # Below 80% of par
+                status = 'Critical' if current_stock < par_level * 0.4 else 'Low'
+                low_stock.append({
+                    'item': ingredient_name,
+                    'location': location_name,
+                    'current': f"{current_stock:.1f}",
+                    'par': f"{par_level:.1f}",
+                    'status': status
+                })
+            
+            # USAGE REPORT
+            predicted_use = avg_used
+            actual_use = float(latest.get('used_qty', 0) or 0)
+            if predicted_use > 0:
+                variance_pct = ((actual_use - predicted_use) / predicted_use * 100)
+                usage.append({
+                    'item': ingredient_name,
+                    'location': location_name,
+                    'used': f"{actual_use:.1f}",
+                    'predicted': f"{predicted_use:.1f}",
+                    'variance': f"{variance_pct:+.0f}%",
+                    'variance_class': 'status-low' if abs(variance_pct) > 15 else 'status-ok'
+                })
+            
+            # VARIANCE REPORT (Expected vs Actual stock)
+            expected_stock = avg_on_hand
+            actual_stock = current_stock
+            diff = actual_stock - expected_stock
+            if abs(diff) > 1:  # Only show if difference is > 1 unit
+                variance.append({
+                    'item': ingredient_name,
+                    'location': location_name,
+                    'expected': f"{expected_stock:.1f}",
+                    'actual': f"{actual_stock:.1f}",
+                    'diff': f"{diff:+.1f}",
+                    'diff_class': 'status-low' if diff < 0 else 'status-ok'
+                })
+        
+        print(f"[REPORTS] Generated {len(low_stock)} low stock, {len(usage)} usage, {len(variance)} variance items")
+        
+        return jsonify({
+            'low_stock': low_stock[:10],
+            'usage': usage[:10],
+            'variance': variance[:10]
+        })
+        
     except Exception as e:
         import traceback
         traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
+        print(f"[REPORTS] ERROR: {str(e)}")
+        return jsonify({
+            'error': str(e),
+            'low_stock': [],
+            'usage': [],
+            'variance': []
+        }), 500
 
 
-# ═══════════════════════  AGENT ROUTES (Agentic Inventory Mode)  ═════════════
+@app.route('/api/forecasts', methods=['GET'])
+def api_forecasts():
+    """Return demand forecast and stockout risk data from Supabase DataPoints."""
+    try:
+        from pipeline.supabase_client import _get_client
+        from datetime import datetime, timedelta
+        from collections import defaultdict
+
+        client = _get_client()
+        location_filter = request.args.get('location', 'all')
+        cutoff = (datetime.utcnow() - timedelta(days=1095)).strftime("%Y-%m-%d")
+
+        response = client.table("DataPoints").select("*").gte("date", cutoff).order("date", desc=True).limit(2000).execute()
+        rows = response.data if response.data else []
+
+        if not rows:
+            return jsonify({'demand_forecast': [], 'stockout_risk': [], 'demand_stats': {}, 'risk_stats': {}})
+
+        rest_map = {
+            1: 'Main Kitchen', 2: 'Downtown Branch', 3: 'Harbor View',
+            '1': 'Main Kitchen', '2': 'Downtown Branch', '3': 'Harbor View',
+        }
+        loc_id_map = {
+            'main': [1, '1'], 'downtown': [2, '2'], 'harbor': [3, '3'],
+        }
+
+        # Filter by location if specified
+        if location_filter != 'all' and location_filter in loc_id_map:
+            valid_ids = loc_id_map[location_filter]
+            rows = [r for r in rows if r.get('restaurant_id') in valid_ids]
+
+        # Group rows by (ingredient, restaurant)
+        grouped = defaultdict(lambda: defaultdict(list))
+        for row in rows:
+            ing = row.get('ingredient_name', '')
+            rid = row.get('restaurant_id')
+            if ing and rid is not None:
+                grouped[ing][rid].append(row)
+
+        # ── DEMAND FORECAST ──
+        # Predict demand level for next 7 days based on usage trends
+        demand_forecast = []
+        for ing, by_rest in grouped.items():
+            for rid, ing_rows in by_rest.items():
+                sorted_rows = sorted(ing_rows, key=lambda x: x.get('date', ''), reverse=True)
+                last_3 = sorted_rows[:3]
+                mid_2 = sorted_rows[3:5] if len(sorted_rows) >= 5 else sorted_rows[2:4]
+                tail_2 = sorted_rows[5:7] if len(sorted_rows) >= 7 else sorted_rows[4:6]
+
+                avg_all = sum(float(r.get('used_qty', 0) or 0) for r in sorted_rows[:7]) / max(min(len(sorted_rows), 7), 1)
+                avg_3 = sum(float(r.get('used_qty', 0) or 0) for r in last_3) / max(len(last_3), 1) if last_3 else 0
+                avg_mid = sum(float(r.get('used_qty', 0) or 0) for r in mid_2) / max(len(mid_2), 1) if mid_2 else avg_all
+                avg_tail = sum(float(r.get('used_qty', 0) or 0) for r in tail_2) / max(len(tail_2), 1) if tail_2 else avg_all
+
+                def level(avg, baseline):
+                    if baseline == 0:
+                        return 'Low'
+                    ratio = avg / baseline
+                    if ratio > 1.15:
+                        return 'High'
+                    elif ratio < 0.85:
+                        return 'Low'
+                    return 'Med'
+
+                demand_forecast.append({
+                    'item': ing,
+                    'location': rest_map.get(rid, f'Location {rid}'),
+                    'day_1_3': level(avg_3, avg_all),
+                    'day_4_5': level(avg_mid, avg_all),
+                    'day_6_7': level(avg_tail, avg_all),
+                    'avg_daily': round(avg_all, 1),
+                })
+
+        # Sort: High demands first
+        priority = {'High': 0, 'Med': 1, 'Low': 2}
+        demand_forecast.sort(key=lambda x: priority.get(x['day_1_3'], 3))
+
+        # ── STOCKOUT RISK ──
+        stockout_risk = []
+        critical_count = 0
+        high_count = 0
+        for ing, by_rest in grouped.items():
+            for rid, ing_rows in by_rest.items():
+                sorted_rows = sorted(ing_rows, key=lambda x: x.get('date', ''), reverse=True)
+                latest = sorted_rows[0]
+                recent_7 = sorted_rows[:7]
+
+                current_stock = float(latest.get('ending_on_hand', 0) or 0)
+                avg_used = sum(float(r.get('used_qty', 0) or 0) for r in recent_7) / max(len(recent_7), 1)
+                days_of_supply = (current_stock / avg_used) if avg_used > 0 else 999
+                stockout_flag = latest.get('stockout_next_72h') in (1, True, '1')
+
+                # Risk % calculation
+                if days_of_supply < 1:
+                    risk_pct = 95
+                elif days_of_supply < 2:
+                    risk_pct = 85
+                elif days_of_supply < 3:
+                    risk_pct = 70
+                elif days_of_supply < 5:
+                    risk_pct = 50
+                elif days_of_supply < 7:
+                    risk_pct = 30
+                else:
+                    risk_pct = max(10, int(100 / max(days_of_supply, 1)))
+
+                if stockout_flag:
+                    risk_pct = max(risk_pct, 80)
+
+                # Level
+                if risk_pct >= 80:
+                    level_str = 'Critical'
+                    action = 'Reorder within 24h'
+                    critical_count += 1
+                elif risk_pct >= 55:
+                    level_str = 'High'
+                    action = 'Schedule delivery'
+                    high_count += 1
+                elif risk_pct >= 30:
+                    level_str = 'Moderate'
+                    action = 'Monitor closely'
+                else:
+                    level_str = 'Low'
+                    action = 'Monitor'
+
+                stockout_risk.append({
+                    'item': ing,
+                    'location': rest_map.get(rid, f'Location {rid}'),
+                    'risk_pct': risk_pct,
+                    'level': level_str,
+                    'action': action,
+                    'days_of_supply': round(days_of_supply, 1),
+                })
+
+        stockout_risk.sort(key=lambda x: x['risk_pct'], reverse=True)
+
+        # Stats
+        total_items_forecast = len(demand_forecast)
+        high_demand_count = len([d for d in demand_forecast if d['day_1_3'] == 'High'])
+        confidence = min(95, max(60, int(70 + (len(rows) / 100) * 5)))
+
+        demand_stats = {
+            'horizon': '7 days',
+            'updated': 'Just now',
+            'model': 'SpellStock AI',
+            'confidence': f'{confidence}%',
+        }
+        risk_stats = {
+            'critical_items': critical_count,
+            'high_risk': high_count,
+            'horizon': '72 h',
+            'last_run': 'Just now',
+        }
+
+        return jsonify({
+            'demand_forecast': demand_forecast[:20],
+            'stockout_risk': stockout_risk[:20],
+            'demand_stats': demand_stats,
+            'risk_stats': risk_stats,
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'demand_forecast': [], 'stockout_risk': [], 'demand_stats': {}, 'risk_stats': {}}), 200
+
+
+@app.route('/api/explain-chart', methods=['POST'])
+def api_explain_chart():
+    """Use Gemini to generate a dynamic explanation of a chart based on its current data."""
+    try:
+        data = request.get_json() or {}
+        chart_id = data.get('chart_id', '')
+        chart_data = data.get('chart_data', {})
+
+        if not chart_id:
+            return jsonify({'error': 'Missing chart_id'}), 400
+
+        api_key = os.environ.get("GEMINI_API_KEY", "")
+        if not api_key:
+            return jsonify({'explanation': 'Gemini API key not configured. Unable to generate explanation.'}), 200
+
+        from google import genai
+        from google.genai import types
+        import json as _json
+
+        client = genai.Client(api_key=api_key)
+
+        system = (
+            "You are SpellStock AI, a restaurant inventory intelligence assistant. "
+            "You explain inventory charts to kitchen managers in 2-3 concise sentences. "
+            "Reference the actual data values provided. Highlight anything concerning "
+            "(low stock, high waste, risk spikes) and note positive trends too. "
+            "Be conversational but data-driven. Do NOT use markdown or bullet points — plain text only."
+        )
+
+        user_prompt = (
+            f"Explain this chart to a kitchen manager.\n\n"
+            f"Chart: {chart_id}\n"
+            f"Data: {_json.dumps(chart_data, indent=2)}\n\n"
+            f"Give a brief, insightful summary of what this data shows right now."
+        )
+
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=user_prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=system,
+            ),
+        )
+        text = getattr(response, "text", "") or "Unable to generate explanation."
+        return jsonify({'explanation': text.strip()})
+
+    except Exception as e:
+        print(f"[explain-chart] Error: {e}")
+        return jsonify({'explanation': f'Could not generate explanation: {str(e)}'}), 200
+
+
+@app.route('/api/dashboard/charts', methods=['GET'])
+def api_dashboard_charts():
+    """Return stock-by-ingredient and location-comparison data for the dashboard graphs."""
+    try:
+        from pipeline.supabase_client import _get_client
+        from datetime import datetime, timedelta
+        from collections import defaultdict
+
+        client = _get_client()
+        cutoff = (datetime.utcnow() - timedelta(days=1095)).strftime("%Y-%m-%d")
+
+        response = client.table("DataPoints").select("*").gte("date", cutoff).order("date", desc=True).limit(1000).execute()
+        rows = response.data if response.data else []
+
+        if not rows:
+            return jsonify({'stock_by_ingredient': [], 'location_comparison': []})
+
+        # --- Stock by Ingredient (aggregated across all locations, latest data) ---
+        ingredient_stock = defaultdict(lambda: {'total_stock': 0, 'total_used': 0, 'par_level': 0, 'count': 0})
+        seen_latest = {}  # track latest row per (ingredient, restaurant)
+        for row in rows:
+            ingredient = row.get('ingredient_name', '')
+            rest_id = row.get('restaurant_id')
+            if not ingredient:
+                continue
+            key = (ingredient, rest_id)
+            if key not in seen_latest:
+                seen_latest[key] = row
+                stock = float(row.get('ending_on_hand', 0) or 0)
+                used = float(row.get('used_qty', 0) or 0)
+                ingredient_stock[ingredient]['total_stock'] += stock
+                ingredient_stock[ingredient]['total_used'] += used
+                ingredient_stock[ingredient]['count'] += 1
+
+        stock_by_ingredient = []
+        for name, data in sorted(ingredient_stock.items(), key=lambda x: x[1]['total_stock'], reverse=True):
+            avg_used = data['total_used'] / max(data['count'], 1)
+            par = max(avg_used * 1.5, 10) * data['count']
+            stock_by_ingredient.append({
+                'ingredient': name,
+                'current_stock': round(data['total_stock'], 1),
+                'par_level': round(par, 1),
+                'avg_daily_use': round(data['total_used'] / max(data['count'], 1), 1),
+            })
+
+        # --- Location Comparison ---
+        rest_map = {1: 'Main Kitchen', 2: 'Downtown Branch', 3: 'Harbor View',
+                    '1': 'Main Kitchen', '2': 'Downtown Branch', '3': 'Harbor View'}
+        by_restaurant = defaultdict(list)
+        for row in rows:
+            rest_id = row.get('restaurant_id')
+            if rest_id is not None:
+                by_restaurant[rest_id].append(row)
+
+        location_comparison = []
+        for rest_id, rest_rows in by_restaurant.items():
+            name = rest_map.get(rest_id, f'Location {rest_id}')
+            # Latest rows per ingredient
+            latest_by_ing = {}
+            for r in rest_rows:
+                ing = r.get('ingredient_name', '')
+                if ing and ing not in latest_by_ing:
+                    latest_by_ing[ing] = r
+
+            total_stock = sum(float(r.get('ending_on_hand', 0) or 0) for r in latest_by_ing.values())
+            total_items = len(latest_by_ing)
+            avg_risk = 0
+            critical = 0
+            for ing, r in latest_by_ing.items():
+                stock = float(r.get('ending_on_hand', 0) or 0)
+                used = float(r.get('used_qty', 0) or 0)
+                dos = (stock / used) if used > 0 else 999
+                if dos < 2:
+                    critical += 1
+                    avg_risk += 90
+                elif dos < 4:
+                    avg_risk += 70
+                elif dos < 7:
+                    avg_risk += 40
+                else:
+                    avg_risk += 10
+            avg_risk = avg_risk / max(total_items, 1)
+
+            location_comparison.append({
+                'location': name,
+                'total_stock': round(total_stock, 1),
+                'total_items': total_items,
+                'avg_risk': round(avg_risk, 1),
+                'critical_items': critical,
+            })
+
+        location_comparison.sort(key=lambda x: x['location'])
+
+        # --- Calculate summary stats for dashboard stat cards ---
+        total_items = len(stock_by_ingredient)
+        total_alerts = len([loc for loc in location_comparison if loc.get('critical_items', 0) > 0])
+        total_risks = sum(loc.get('critical_items', 0) for loc in location_comparison)
+        
+        # Calculate expiring soon (items with < 2 days of supply)
+        expiring_soon = 0
+        seen_ingredients = set()
+        for row in rows:
+            ingredient = row.get('ingredient_name', '')
+            if ingredient and ingredient not in seen_ingredients:
+                stock = float(row.get('ending_on_hand', 0) or 0)
+                used = float(row.get('used_qty', 0) or 0)
+                dos = (stock / used) if used > 0 else 999
+                if dos < 2:
+                    expiring_soon += 1
+                    seen_ingredients.add(ingredient)
+
+        return jsonify({
+            'stock_by_ingredient': stock_by_ingredient[:15],  # Top 15
+            'location_comparison': location_comparison,
+            'total_items': total_items,
+            'total_alerts': total_alerts,
+            'total_risks': total_risks,
+            'expiring_soon': expiring_soon,
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'stock_by_ingredient': [], 'location_comparison': []}), 200
+
+
+@app.route('/api/inventory/stats', methods=['GET'])
+def api_inventory_stats():
+    """Return detailed inventory statistics for the Inventory Hub — usage trends, waste, turnover."""
+    try:
+        from pipeline.supabase_client import _get_client
+        from datetime import datetime, timedelta
+        from collections import defaultdict
+
+        client = _get_client()
+        cutoff = (datetime.utcnow() - timedelta(days=1095)).strftime("%Y-%m-%d")
+
+        response = client.table("DataPoints").select("*").gte("date", cutoff).order("date", desc=False).limit(2000).execute()
+        rows = response.data if response.data else []
+
+        if not rows:
+            return jsonify({'usage_trends': [], 'waste_analysis': [], 'turnover': [], 'daily_usage_timeline': [], 'summary': {}})
+
+        # --- Summary Stats ---
+        all_ingredients = set()
+        total_waste = 0
+        total_used = 0
+        total_stock = 0
+        latest_by_ing = {}
+        for row in rows:
+            ing = row.get('ingredient_name', '')
+            if ing:
+                all_ingredients.add(ing)
+                total_waste += float(row.get('waste_qty', 0) or 0)
+                total_used += float(row.get('used_qty', 0) or 0)
+            # track latest
+            key = (ing, row.get('restaurant_id'))
+            latest_by_ing[key] = row
+
+        for key, row in latest_by_ing.items():
+            total_stock += float(row.get('ending_on_hand', 0) or 0)
+
+        summary = {
+            'total_ingredients': len(all_ingredients),
+            'total_stock_on_hand': round(total_stock, 1),
+            'total_used_period': round(total_used, 1),
+            'total_waste_period': round(total_waste, 1),
+            'waste_rate': round((total_waste / total_used * 100) if total_used > 0 else 0, 1),
+        }
+
+        # --- Usage Trends (per ingredient, compare last 7 vs prior 7 days) ---
+        by_ingredient = defaultdict(list)
+        for row in rows:
+            ing = row.get('ingredient_name', '')
+            if ing:
+                by_ingredient[ing].append(row)
+
+        usage_trends = []
+        for ing, ing_rows in by_ingredient.items():
+            sorted_rows = sorted(ing_rows, key=lambda x: x.get('date', ''), reverse=True)
+            last_7 = sorted_rows[:7]
+            prior_7 = sorted_rows[7:14]
+            avg_last = sum(float(r.get('used_qty', 0) or 0) for r in last_7) / max(len(last_7), 1)
+            avg_prior = sum(float(r.get('used_qty', 0) or 0) for r in prior_7) / max(len(prior_7), 1) if prior_7 else avg_last
+            change_pct = ((avg_last - avg_prior) / avg_prior * 100) if avg_prior > 0 else 0
+            usage_trends.append({
+                'ingredient': ing,
+                'avg_last_7': round(avg_last, 1),
+                'avg_prior_7': round(avg_prior, 1),
+                'change_pct': round(change_pct, 1),
+                'trend': 'up' if change_pct > 10 else ('down' if change_pct < -10 else 'stable'),
+            })
+        usage_trends.sort(key=lambda x: abs(x['change_pct']), reverse=True)
+
+        # --- Waste Analysis ---
+        waste_analysis = []
+        for ing, ing_rows in by_ingredient.items():
+            total_waste_ing = sum(float(r.get('waste_qty', 0) or 0) for r in ing_rows)
+            total_used_ing = sum(float(r.get('used_qty', 0) or 0) for r in ing_rows)
+            waste_rate = (total_waste_ing / total_used_ing * 100) if total_used_ing > 0 else 0
+            waste_analysis.append({
+                'ingredient': ing,
+                'total_waste': round(total_waste_ing, 1),
+                'total_used': round(total_used_ing, 1),
+                'waste_rate': round(waste_rate, 1),
+            })
+        waste_analysis.sort(key=lambda x: x['waste_rate'], reverse=True)
+
+        # --- Daily Usage Timeline (aggregated across all ingredients, last 14 days) ---
+        by_date = defaultdict(lambda: {'used': 0, 'waste': 0, 'stock': 0})
+        for row in rows:
+            date = row.get('date', '')
+            if date:
+                by_date[date]['used'] += float(row.get('used_qty', 0) or 0)
+                by_date[date]['waste'] += float(row.get('waste_qty', 0) or 0)
+                by_date[date]['stock'] += float(row.get('ending_on_hand', 0) or 0)
+
+        dates_sorted = sorted(by_date.keys())[-14:]  # last 14 days
+        daily_usage_timeline = [{
+            'date': d,
+            'used': round(by_date[d]['used'], 1),
+            'waste': round(by_date[d]['waste'], 1),
+            'stock': round(by_date[d]['stock'], 1),
+        } for d in dates_sorted]
+
+        return jsonify({
+            'summary': summary,
+            'usage_trends': usage_trends[:15],
+            'waste_analysis': waste_analysis[:15],
+            'daily_usage_timeline': daily_usage_timeline,
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'summary': {}, 'usage_trends': [], 'waste_analysis': [], 'daily_usage_timeline': []}), 200
+
+
+@app.route('/api/test-supabase', methods=['GET'])
+def test_supabase():
+    """Test Supabase connection"""
+    try:
+        from pipeline.supabase_client import _get_client
+        client = _get_client()
+        
+        # Try to fetch ANY data
+        response = client.table("DataPoints").select("*").limit(5).execute()
+        
+        return jsonify({
+            'status': 'connected',
+            'row_count': len(response.data) if response.data else 0,
+            'sample': response.data[0] if response.data else None
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+
+# ═══════════════════════  AGENT ROUTES  ══════════════════════════════════════
 
 @app.route('/agent/plan', methods=['POST'])
 def agent_plan():
     """
-    Sense → Plan → Propose.
-    Trigger: system loop (every 5 min) or manual.
-    Reads active alerts + inventory, calls Gemini in agentic mode,
-    returns a prioritised action queue.
-
-    Body (optional):
-      { "restaurant_id": "main", "horizon_hours": 72, "use_llm": true }
+    Sense → Plan → Propose action queue.
+    Uses current active alerts to generate a plan via Gemini or fallback.
+    Body (optional): { "restaurant_id": "main", "horizon_hours": 72, "use_llm": true }
     """
+    data = request.get_json() or {}
+    restaurant_id = data.get("restaurant_id", "main")
+    horizon_hours = data.get("horizon_hours", 72)
+    use_llm = data.get("use_llm", True)
+
+    if not _active_alerts:
+        return jsonify({
+            "status": "no_alerts",
+            "message": "No active alerts — run an inventory check first.",
+            "actions": [],
+        })
+
     try:
-        data = request.get_json() or {}
-        restaurant_id = data.get("restaurant_id", 1)
-        horizon_hours = data.get("horizon_hours", 72)
-        use_llm = data.get("use_llm", True)
-
-        # Get inventory state
-        from backend.inventory_engine import simulate_risk
-        inv_params = {"demand_multiplier": 1.0, "horizon_hours": horizon_hours}
-        inventory_state = simulate_risk(inv_params)
-
-        # Generate plan from active alerts
-        plan = generate_plan(
+        result = generate_plan(
             active_alerts=_active_alerts,
-            inventory_state=inventory_state,
-            restaurant_id=str(restaurant_id),
+            inventory_state=None,
+            restaurant_id=restaurant_id,
             horizon_hours=horizon_hours,
             use_llm=use_llm,
         )
-
-        # Clear previous actions and store only the new plan
-        from pipeline.agent.executor import clear_store
-        clear_store()
-        store_actions(plan.get("action_queue", []))
-
-        return jsonify(plan)
-
+        actions = result.get("action_queue", [])
+        store_actions(actions)
+        return jsonify({
+            "status": result.get("status", "planned"),
+            "message": result.get("message", ""),
+            "actions": actions,
+            "grouped_by_owner": result.get("grouped_by_owner", {}),
+            "plan_metadata": result.get("plan_metadata", {}),
+        })
     except Exception as e:
         import traceback
         traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": f"Plan generation failed: {e}"}), 500
 
 
 @app.route('/agent/command', methods=['POST'])
 def agent_command():
     """
-    Operator command → action queue.
-    Body: { "command": "Fix top 3 alerts" }
-    Commands trigger planning, NOT conversation.
+    Process an operator command and generate actions.
+    Body: { "command": "Draft PO for chicken" }
     """
+    data = request.get_json() or {}
+    command = (data.get("command") or "").strip()
+    if not command:
+        return jsonify({"error": "Missing 'command' field."}), 400
+
+    if not _active_alerts:
+        return jsonify({
+            "status": "no_alerts",
+            "message": "No active alerts — run an inventory check first.",
+            "actions": [],
+        })
+
     try:
-        data = request.get_json() or {}
-        command = (data.get("command") or "").strip()
-        if not command:
-            return jsonify({"error": "Missing 'command' field."}), 400
-
-        from backend.inventory_engine import simulate_risk
-        inventory_state = simulate_risk({"demand_multiplier": 1.0, "horizon_hours": 72})
-
-        plan = generate_plan_from_command(
+        result = generate_plan_from_command(
             command=command,
             active_alerts=_active_alerts,
-            inventory_state=inventory_state,
+            inventory_state=None,
         )
-
-        # Clear previous actions and store only the new ones
-        from pipeline.agent.executor import clear_store
-        clear_store()
-        store_actions(plan.get("action_queue", []))
-
-        return jsonify(plan)
-
+        actions = result.get("action_queue", [])
+        store_actions(actions)
+        return jsonify({
+            "status": result.get("status", "planned"),
+            "message": result.get("message", ""),
+            "actions": actions,
+            "grouped_by_owner": result.get("grouped_by_owner", {}),
+            "plan_metadata": result.get("plan_metadata", {}),
+        })
     except Exception as e:
         import traceback
         traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": f"Command failed: {e}"}), 500
 
 
 @app.route('/agent/approve', methods=['POST'])
@@ -604,6 +1322,101 @@ def agent_status():
         "auto_approve_types": ["acknowledge_alert", "create_task", "draft_po", "adjust_par (≤10%)"],
         "approval_required_types": ["update_delivery_eta", "transfer_stock", "adjust_par (>10%)"],
     })
+
+
+# ═══════════════════════  AGENT COPILOT ROUTES  ═════════════════════════════
+
+@app.route('/agent/copilot', methods=['POST'])
+def agent_copilot():
+    """
+    Agent Copilot — intent-to-action translation engine.
+    Converts natural language into structured Action Queue operations.
+
+    NOT a chatbot. Returns structured JSON with:
+      - intent: VIEW | FILTER | ADD | MODIFY | EXECUTE | REMOVE | RESET
+      - queue_operation: APPEND | UPDATE | REPLACE | EXECUTE | NONE
+      - actions_queue: current/filtered action objects
+      - executions_triggered: IDs of actions modified this turn
+      - notes: reasoning about user intent
+
+    Body: { "message": "...", "session_id": "optional-uuid" }
+    """
+    data = request.get_json() or {}
+    message = (data.get("message") or "").strip()
+    session_id = data.get("session_id") or str(__import__("uuid").uuid4())
+
+    if not message:
+        return jsonify({"error": "Missing 'message' field."}), 400
+
+    if not _active_alerts:
+        return jsonify({
+            "error": None,
+            "structured": {
+                "intent": "VIEW",
+                "queue_operation": "NONE",
+                "filters_applied": {},
+                "actions_queue": [],
+                "executions_triggered": [],
+                "notes": "No active alerts detected. Please run an inventory check first (AI Alerts tab → Run Inventory Check) so I have data to work with.",
+            },
+            "response": '{"intent":"VIEW","queue_operation":"NONE","filters_applied":{},"actions_queue":[],"executions_triggered":[],"notes":"No active alerts. Run inventory check first."}',
+            "tool_calls": [],
+            "actions_created": [],
+            "session_id": session_id,
+            "turn_count": 0,
+            "queue_modified": False,
+        })
+
+    try:
+        result = run_copilot(
+            user_message=message,
+            session_id=session_id,
+            active_alerts=_active_alerts,
+        )
+
+        # Determine if queue was modified by checking tool trace
+        queue_modifying_tools = {
+            "execute_action", "approve_action", "reject_action", "rollback_action",
+            "bulk_action", "draft_purchase_order", "create_kitchen_task", "adjust_par_level",
+            "generate_action_plan",
+        }
+        queue_modified = any(
+            tc.get("tool") in queue_modifying_tools
+            for tc in (result.get("tool_calls") or [])
+        )
+        result["queue_modified"] = queue_modified
+
+        # DUAL SYNC: If queue was modified, include the full updated actions snapshot
+        # This ensures the frontend system queue stays in sync with the conversation queue
+        if queue_modified:
+            all_actions = get_all_actions()
+            result["updated_actions"] = all_actions
+
+        return jsonify(result)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"Copilot error: {e}"}), 500
+
+
+@app.route('/agent/copilot/history', methods=['GET'])
+def agent_copilot_history():
+    """Get conversation history for a copilot session."""
+    session_id = request.args.get("session_id", "")
+    if not session_id:
+        return jsonify({"error": "Missing session_id."}), 400
+    history = get_session_history(session_id)
+    return jsonify({"session_id": session_id, "history": history})
+
+
+@app.route('/agent/copilot/reset', methods=['POST'])
+def agent_copilot_reset():
+    """Clear a copilot session to start fresh."""
+    data = request.get_json() or {}
+    session_id = data.get("session_id", "")
+    if session_id:
+        clear_session(session_id)
+    return jsonify({"status": "ok", "message": "Session cleared."})
 
 
 # ══════════════════════════════════════════════════════════════════════════════

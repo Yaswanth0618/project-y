@@ -1,5 +1,5 @@
 {
-  "min_confidence": 0.6,
+  "min_confidence": 0.3,
   "max_days_out": 7,
   "ignored_ingredients": [],
   "restaurant_id": 1
