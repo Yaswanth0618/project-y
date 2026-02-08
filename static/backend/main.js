@@ -656,10 +656,10 @@
         
         return '<tr class="border-b border-white/5 hover:bg-white/5 transition-colors">' +
           '<td class="py-2 pr-4 font-medium">' + escapeHtml(item.ingredient) + '</td>' +
-          '<td class="py-2 pr-4">' + item.currentStock + ' ' + item.unit + '</td>' +
-          '<td class="py-2 pr-4">' + item.avgDailyUse + ' ' + item.unit + '/day</td>' +
-          '<td class="py-2 pr-4">' + item.daysOfSupply + ' days</td>' +
-          '<td class="py-2 ' + statusClass + '">' + item.status + '</td>' +
+          '<td class="py-2 pr-4">' + escapeHtml(String(item.currentStock)) + ' ' + escapeHtml(item.unit) + '</td>' +
+          '<td class="py-2 pr-4">' + escapeHtml(String(item.avgDailyUse)) + ' ' + escapeHtml(item.unit) + '/day</td>' +
+          '<td class="py-2 pr-4">' + escapeHtml(String(item.daysOfSupply)) + ' days</td>' +
+          '<td class="py-2 ' + statusClass + '">' + escapeHtml(item.status) + '</td>' +
           '</tr>';
       }).join('');
     } else if (tableBody) {
