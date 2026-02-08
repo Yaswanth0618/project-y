@@ -684,7 +684,7 @@
                     </div>
 
                     <script src="../static/backend/alerts.js"></script>
-                    
+
 
                     <!-- ═══ ALERTS PANEL ═══ -->
                     <div id="alerts-panel" class="hidden pb-16">
@@ -744,67 +744,71 @@
                         <!-- ═══ RESULTS STATE (hidden until scan completes) ═══ -->
                         <!-- ═══ RESULTS STATE ═══ -->
                         <div id="alerts-results" class="hidden h-[calc(100vh-8rem)]">
-  <div class="flex items-center justify-between mb-3">
-    <div class="flex items-center gap-3">
-      <h3 class="text-sm font-semibold text-white/80">Live Alerts</h3>
-      <button id="btn-refresh-alerts" type="button"
-        class="px-3 py-1.5 text-[10px] uppercase tracking-wider font-medium rounded-lg border border-white/10 bg-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-2">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-        </svg>
-        Refresh
-      </button>
-    </div>
-
-    <!-- Loader (shows while scanning) -->
-    <div id="alerts-loading" class="flex items-center gap-2 text-white/50 text-xs" style="display:none;">
-      <div class="w-4 h-4 rounded-full border-2 border-white/20 border-t-white/70 animate-spin"></div>
-      <div id="alerts-loading-text" class="animate-pulse">Scanning…</div>
-    </div>
-  </div>
-
-  <!-- Live stack + history (most recent on top) -->
-  <div id="alerts-stack" class="space-y-3 overflow-y-auto h-full pr-1"></div>
-</div>
-
-
-
-
-                    <!-- ═══ AGENT COPILOT PANEL ═══ -->
-                    <div id="agent-panel" class="hidden pb-16">
-                        <div class="panel-header-row mb-6">
-                            <div>
-                                <h2 class="section-title text-sm text-white/60">Agent Copilot</h2>
-                                <p class="chart-subtext text-[10px] text-white/30 mt-1">AI assistant that thinks,
-                                    investigates, and takes action on your inventory</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/5 border border-amber-500/15">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></div>
-                                    <span class="chart-label text-[10px] text-white/70">Agent Active</span>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-3">
+                                    <h3 class="text-sm font-semibold text-white/80">Live Alerts</h3>
+                                    <button id="btn-refresh-alerts" type="button"
+                                        class="px-3 py-1.5 text-[10px] uppercase tracking-wider font-medium rounded-lg border border-white/10 bg-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-2">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        Refresh
+                                    </button>
                                 </div>
-                                <button id="btn-copilot-reset" type="button"
-                                    class="text-[9px] mono uppercase tracking-widest py-2 px-4 border border-white/10 rounded-full text-white/40 hover:text-white hover:bg-white/5 transition-all">
-                                    New Session
-                                </button>
+
+                                <!-- Loader (shows while scanning) -->
+                                <div id="alerts-loading" class="flex items-center gap-2 text-white/50 text-xs"
+                                    style="display:none;">
+                                    <div
+                                        class="w-4 h-4 rounded-full border-2 border-white/20 border-t-white/70 animate-spin">
+                                    </div>
+                                    <div id="alerts-loading-text" class="animate-pulse">Scanning…</div>
+                                </div>
                             </div>
+
+                            <!-- Live stack + history (most recent on top) -->
+                            <div id="alerts-stack" class="space-y-3 overflow-y-auto h-full pr-1"></div>
                         </div>
 
-                        <!-- Agent Stats -->
-                        <div id="copilot-stats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                            <div class="forecast-card"><span class="label block mb-0.5">Tool Calls</span><span
-                                    class="value text-amber-400" id="copilot-stat-tools">0</span></div>
-                            <div class="forecast-card"><span class="label block mb-0.5">Actions Created</span><span
-                                    class="value text-emerald-400" id="copilot-stat-actions">0</span></div>
-                            <div class="forecast-card"><span class="label block mb-0.5">Turns</span><span
-                                    class="value text-orange-400" id="copilot-stat-turns">0</span></div>
-                            <div class="forecast-card"><span class="label block mb-0.5">Active Alerts</span><span
-                                    class="value text-red-400" id="copilot-stat-alerts">0</span></div>
-                        </div>
 
-                        <!-- Command Input -->
-                        <div class="glass-panel p-4 mb-6 flex items-center gap-3">
+
+
+                        <!-- ═══ AGENT COPILOT PANEL ═══ -->
+                        <div id="agent-panel" class="hidden pb-16">
+                            <div class="panel-header-row mb-6">
+                                <div>
+                                    <h2 class="section-title text-sm text-white/60">Agent Copilot</h2>
+                                    <p class="chart-subtext text-[10px] text-white/30 mt-1">AI assistant that thinks,
+                                        investigates, and takes action on your inventory</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/5 border border-amber-500/15">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></div>
+                                        <span class="chart-label text-[10px] text-white/70">Agent Active</span>
+                                    </div>
+                                    <button id="btn-copilot-reset" type="button"
+                                        class="text-[9px] mono uppercase tracking-widest py-2 px-4 border border-white/10 rounded-full text-white/40 hover:text-white hover:bg-white/5 transition-all">
+                                        New Session
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Agent Stats -->
+                            <div id="copilot-stats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                                <div class="forecast-card"><span class="label block mb-0.5">Tool Calls</span><span
+                                        class="value text-amber-400" id="copilot-stat-tools">0</span></div>
+                                <div class="forecast-card"><span class="label block mb-0.5">Actions Created</span><span
+                                        class="value text-emerald-400" id="copilot-stat-actions">0</span></div>
+                                <div class="forecast-card"><span class="label block mb-0.5">Turns</span><span
+                                        class="value text-orange-400" id="copilot-stat-turns">0</span></div>
+                                <div class="forecast-card"><span class="label block mb-0.5">Active Alerts</span><span
+                                        class="value text-red-400" id="copilot-stat-alerts">0</span></div>
+                            </div>
+
+                            <!-- Command Input -->
+                            <div class="glass-panel p-4 mb-6 flex items-center gap-3">
                                 <div class="flex-1">
                                     <input id="agent-command-input" type="text"
                                         placeholder="Operator command... e.g. 'Fix top 3 stockout alerts' or 'Draft PO for chicken'"
@@ -818,184 +822,189 @@
                                     </svg>
                                 </button>
                             </div>
-                        <!-- Quick Prompts -->
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <button
-                                class="copilot-quick-btn text-[9px] mono uppercase tracking-widest py-2 px-4 border border-white/10 rounded-full hover:bg-white hover:text-black hover:border-white transition-all"
-                                data-prompt="Analyze all active alerts and take action on the most critical ones">
-                                Fix Critical Alerts
-                            </button>
-                            <button
-                                class="copilot-quick-btn text-[9px] mono uppercase tracking-widest py-2 px-4 border border-white/10 rounded-full hover:bg-white hover:text-black hover:border-white transition-all"
-                                data-prompt="Check inventory levels across all items and draft purchase orders for anything running low">
-                                Auto-Restock
-                            </button>
-                            <button
-                                class="copilot-quick-btn text-[9px] mono uppercase tracking-widest py-2 px-4 border border-white/10 rounded-full hover:bg-white hover:text-black hover:border-white transition-all"
-                                data-prompt="Analyze usage trends for all items and suggest par level adjustments where usage patterns have changed">
-                                Optimize Par Levels
-                            </button>
-                            <button
-                                class="copilot-quick-btn text-[9px] mono uppercase tracking-widest py-2 px-4 border border-white/10 rounded-full hover:bg-white hover:text-black hover:border-white transition-all"
-                                data-prompt="Give me a full operational status report — what's at risk, what actions have been taken, and what needs attention next">
-                                Status Briefing
-                            </button>
-                        </div>
-
-                        <!-- Copilot Conversation Area -->
-                        <div class="glass-panel rounded-2xl overflow-hidden mb-6">
-                            <div class="px-6 py-4 border-b border-white/5 flex items-center">
-                                <div class="w-2 h-2 rounded-full bg-amber-500 mr-3"></div>
-                                <h3
-                                    class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider leading-none m-0">
-                                    Agent Conversation</h3>
-                                <span class="ml-auto text-[9px] mono text-white/20" id="copilot-session-id"></span>
+                            <!-- Quick Prompts -->
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <button
+                                    class="copilot-quick-btn text-[9px] mono uppercase tracking-widest py-2 px-4 border border-white/10 rounded-full hover:bg-white hover:text-black hover:border-white transition-all"
+                                    data-prompt="Analyze all active alerts and take action on the most critical ones">
+                                    Fix Critical Alerts
+                                </button>
+                                <button
+                                    class="copilot-quick-btn text-[9px] mono uppercase tracking-widest py-2 px-4 border border-white/10 rounded-full hover:bg-white hover:text-black hover:border-white transition-all"
+                                    data-prompt="Check inventory levels across all items and draft purchase orders for anything running low">
+                                    Auto-Restock
+                                </button>
+                                <button
+                                    class="copilot-quick-btn text-[9px] mono uppercase tracking-widest py-2 px-4 border border-white/10 rounded-full hover:bg-white hover:text-black hover:border-white transition-all"
+                                    data-prompt="Analyze usage trends for all items and suggest par level adjustments where usage patterns have changed">
+                                    Optimize Par Levels
+                                </button>
+                                <button
+                                    class="copilot-quick-btn text-[9px] mono uppercase tracking-widest py-2 px-4 border border-white/10 rounded-full hover:bg-white hover:text-black hover:border-white transition-all"
+                                    data-prompt="Give me a full operational status report — what's at risk, what actions have been taken, and what needs attention next">
+                                    Status Briefing
+                                </button>
                             </div>
-                            <div id="copilot-messages" class="px-6 py-4 space-y-4 overflow-y-auto"
-                                style="max-height: 550px; min-height: 200px;">
-                                <!-- Welcome message -->
-                                <div class="flex gap-3">
-                                    <div
-                                        class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0 mt-0.5">
-                                        <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                        </svg>
-                                    </div>
-                                    <div class="flex-1">
+
+                            <!-- Copilot Conversation Area -->
+                            <div class="glass-panel rounded-2xl overflow-hidden mb-6">
+                                <div class="px-6 py-4 border-b border-white/5 flex items-center">
+                                    <div class="w-2 h-2 rounded-full bg-amber-500 mr-3"></div>
+                                    <h3
+                                        class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider leading-none m-0">
+                                        Agent Conversation</h3>
+                                    <span class="ml-auto text-[9px] mono text-white/20" id="copilot-session-id"></span>
+                                </div>
+                                <div id="copilot-messages" class="px-6 py-4 space-y-4 overflow-y-auto"
+                                    style="max-height: 550px; min-height: 200px;">
+                                    <!-- Welcome message -->
+                                    <div class="flex gap-3">
                                         <div
-                                            class="text-[10px] mono text-amber-400/60 uppercase tracking-widest mb-1.5">
-                                            SpellStock Assistant</div>
-                                        <div class="text-[13px] text-white/70 leading-relaxed">
-                                            I'm your kitchen inventory assistant. I can <strong
-                                                class="text-white/90">analyze stock levels</strong>, <strong
-                                                class="text-white/90">spot risks</strong>, and <strong
-                                                class="text-white/90">draft purchase orders</strong> for you.
-                                            <br><br>
-                                            Try: <em class="text-white/50">"What ingredients are running low?"</em>
-                                            or <em class="text-white/50">"Draft a PO for chicken breast"</em>
+                                            class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                                            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div
+                                                class="text-[10px] mono text-amber-400/60 uppercase tracking-widest mb-1.5">
+                                                SpellStock Assistant</div>
+                                            <div class="text-[13px] text-white/70 leading-relaxed">
+                                                I'm your kitchen inventory assistant. I can <strong
+                                                    class="text-white/90">analyze stock levels</strong>, <strong
+                                                    class="text-white/90">spot risks</strong>, and <strong
+                                                    class="text-white/90">draft purchase orders</strong> for you.
+                                                <br><br>
+                                                Try: <em class="text-white/50">"What ingredients are running low?"</em>
+                                                or <em class="text-white/50">"Draft a PO for chicken breast"</em>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <!-- Input -->
-                            <div class="px-6 py-4 border-t border-white/5 flex items-center gap-3">
-                                <div class="flex-1">
-                                    <input id="copilot-input" type="text"
-                                        placeholder="Ask about stock levels, order ingredients, check what's expiring..."
-                                        class="input-clean w-full px-4 py-3 rounded-xl text-sm" />
+                                <!-- Input -->
+                                <div class="px-6 py-4 border-t border-white/5 flex items-center gap-3">
+                                    <div class="flex-1">
+                                        <input id="copilot-input" type="text"
+                                            placeholder="Ask about stock levels, order ingredients, check what's expiring..."
+                                            class="input-clean w-full px-4 py-3 rounded-xl text-sm" />
+                                    </div>
+                                    <button id="btn-copilot-send" type="button"
+                                        class="btn-primary w-11 h-11 rounded-full flex items-center justify-center shrink-0">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                        </svg>
+                                    </button>
                                 </div>
-                                <button id="btn-copilot-send" type="button"
-                                    class="btn-primary w-11 h-11 rounded-full flex items-center justify-center shrink-0">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                    </svg>
-                                </button>
                             </div>
-                        </div>
 
-                        <!-- Actions Created by Agent -->
-                        <div class="collapsible-section glass-panel rounded-2xl overflow-hidden mb-6">
-                            <div class="collapsible-header px-6 py-4 border-b border-white/5 flex items-center"
-                                data-collapse-toggle>
-                                <h3
-                                    class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider leading-none m-0">
-                                    Action Queue</h3>
-                                <div class="flex items-center gap-3 ml-auto">
-                                    <select id="agent-filter-status"
-                                        class="input-clean px-3 py-1.5 rounded-lg text-[10px] mono">
-                                        <option value="">All Status</option>
-                                        <option value="proposed">Proposed</option>
-                                        <option value="approved">Approved</option>
-                                        <option value="executed">Executed</option>
-                                        <option value="rejected">Rejected</option>
-                                        <option value="rolled_back">Rolled Back</option>
-                                    </select>
-                                    <select id="agent-filter-owner"
-                                        class="input-clean px-3 py-1.5 rounded-lg text-[10px] mono">
-                                        <option value="">All Owners</option>
-                                        <option value="Purchasing">Purchasing</option>
-                                        <option value="Kitchen">Kitchen</option>
-                                        <option value="VendorOps">VendorOps</option>
-                                    </select>
-                                    <button id="btn-agent-auto" type="button"
-                                        class="text-[9px] mono uppercase tracking-widest py-1.5 px-3 border border-emerald-500/30 text-emerald-400 rounded-full hover:bg-emerald-500/10 transition-all">Auto-Execute</button>
-                                    <svg class="collapse-icon w-5 h-5 text-white/50 shrink-0" fill="none"
+                            <!-- Actions Created by Agent -->
+                            <div class="collapsible-section glass-panel rounded-2xl overflow-hidden mb-6">
+                                <div class="collapsible-header px-6 py-4 border-b border-white/5 flex items-center"
+                                    data-collapse-toggle>
+                                    <h3
+                                        class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider leading-none m-0">
+                                        Action Queue</h3>
+                                    <div class="flex items-center gap-3 ml-auto">
+                                        <select id="agent-filter-status"
+                                            class="input-clean px-3 py-1.5 rounded-lg text-[10px] mono">
+                                            <option value="">All Status</option>
+                                            <option value="proposed">Proposed</option>
+                                            <option value="approved">Approved</option>
+                                            <option value="executed">Executed</option>
+                                            <option value="rejected">Rejected</option>
+                                            <option value="rolled_back">Rolled Back</option>
+                                        </select>
+                                        <select id="agent-filter-owner"
+                                            class="input-clean px-3 py-1.5 rounded-lg text-[10px] mono">
+                                            <option value="">All Owners</option>
+                                            <option value="Purchasing">Purchasing</option>
+                                            <option value="Kitchen">Kitchen</option>
+                                            <option value="VendorOps">VendorOps</option>
+                                        </select>
+                                        <button id="btn-agent-auto" type="button"
+                                            class="text-[9px] mono uppercase tracking-widest py-1.5 px-3 border border-emerald-500/30 text-emerald-400 rounded-full hover:bg-emerald-500/10 transition-all">Auto-Execute</button>
+                                        <svg class="collapse-icon w-5 h-5 text-white/50 shrink-0" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="collapsible-body px-6 py-4" style="max-height: 600px; overflow-y: auto;">
+                                    <div class="overflow-x-auto">
+                                        <table class="report-table" id="agent-queue-table">
+                                            <thead>
+                                                <tr>
+                                                    <th class="cursor-pointer hover:text-white/80"
+                                                        data-sort="action_type">
+                                                        Type ↕</th>
+                                                    <th>Ingredient</th>
+                                                    <th class="cursor-pointer hover:text-white/80"
+                                                        data-sort="risk_level">
+                                                        Risk ↕</th>
+                                                    <th class="cursor-pointer hover:text-white/80"
+                                                        data-sort="owner_role">
+                                                        Owner ↕</th>
+                                                    <th class="cursor-pointer hover:text-white/80" data-sort="status">
+                                                        Status
+                                                        ↕</th>
+                                                    <th>Reason</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="agent-queue-body">
+                                                <tr>
+                                                    <td colspan="7" class="text-center text-white/20 py-8">No actions
+                                                        yet.
+                                                        Ask the agent to analyze and act.</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Diff View -->
+                            <div id="agent-diff-view" class="hidden glass-panel rounded-2xl overflow-hidden mb-6">
+                                <div class="px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                                    <h3
+                                        class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider">
+                                        Action Details</h3>
+                                    <button id="btn-close-diff"
+                                        class="text-white/30 hover:text-white transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div id="agent-diff-content" class="px-6 py-4 space-y-4"></div>
+                            </div>
+
+                            <!-- Audit Log -->
+                            <div class="collapsible-section glass-panel rounded-2xl overflow-hidden">
+                                <div class="collapsible-header px-6 py-4 border-b border-white/5 flex items-center"
+                                    data-collapse-toggle>
+                                    <h3
+                                        class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider leading-none m-0">
+                                        Audit Log</h3>
+                                    <svg class="collapse-icon w-5 h-5 text-white/50 shrink-0 ml-auto" fill="none"
                                         stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </div>
-                            </div>
-                            <div class="collapsible-body px-6 py-4" style="max-height: 600px; overflow-y: auto;">
-                                <div class="overflow-x-auto">
-                                    <table class="report-table" id="agent-queue-table">
-                                        <thead>
-                                            <tr>
-                                                <th class="cursor-pointer hover:text-white/80" data-sort="action_type">
-                                                    Type ↕</th>
-                                                <th>Ingredient</th>
-                                                <th class="cursor-pointer hover:text-white/80" data-sort="risk_level">
-                                                    Risk ↕</th>
-                                                <th class="cursor-pointer hover:text-white/80" data-sort="owner_role">
-                                                    Owner ↕</th>
-                                                <th class="cursor-pointer hover:text-white/80" data-sort="status">
-                                                    Status
-                                                    ↕</th>
-                                                <th>Reason</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="agent-queue-body">
-                                            <tr>
-                                                <td colspan="7" class="text-center text-white/20 py-8">No actions
-                                                    yet.
-                                                    Ask the agent to analyze and act.</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                <div class="collapsible-body px-6 py-4" style="max-height: 400px; overflow-y: auto;">
+                                    <div id="agent-audit-log" class="space-y-2">
+                                        <p class="text-[10px] mono text-white/20 text-center py-4">No audit entries yet.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Diff View -->
-                        <div id="agent-diff-view" class="hidden glass-panel rounded-2xl overflow-hidden mb-6">
-                            <div class="px-6 py-4 border-b border-white/5 flex items-center justify-between">
-                                <h3 class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider">
-                                    Action Details</h3>
-                                <button id="btn-close-diff" class="text-white/30 hover:text-white transition-colors">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
-                            <div id="agent-diff-content" class="px-6 py-4 space-y-4"></div>
-                        </div>
-
-                        <!-- Audit Log -->
-                        <div class="collapsible-section glass-panel rounded-2xl overflow-hidden">
-                            <div class="collapsible-header px-6 py-4 border-b border-white/5 flex items-center"
-                                data-collapse-toggle>
-                                <h3
-                                    class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider leading-none m-0">
-                                    Audit Log</h3>
-                                <svg class="collapse-icon w-5 h-5 text-white/50 shrink-0 ml-auto" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
-                            <div class="collapsible-body px-6 py-4" style="max-height: 400px; overflow-y: auto;">
-                                <div id="agent-audit-log" class="space-y-2">
-                                    <p class="text-[10px] mono text-white/20 text-center py-4">No audit entries yet.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
 
                 </main>
