@@ -179,9 +179,8 @@
                             </div>
                         </div>
                         <div class="glass-panel p-6">
-                            <h3 class="chart-label text-xs font-semibold text-white/50 mb-1">Location-by-Location
-                                Comparison</h3>
-                            <p class="chart-subtext text-[10px] text-white/40 mb-4">Score 0–10 across locations</p>
+                            <h3 class="chart-label text-xs font-semibold text-white/50 mb-1">Inventory Status by Location</h3>
+                            <p class="chart-subtext text-[10px] text-white/40 mb-4">Number of items in each stock status category</p>
                             <div class="h-[280px] flex items-center justify-center">
                                 <canvas id="chart-comparison-bar" width="600" height="280"></canvas>
                             </div>
@@ -206,6 +205,26 @@
                             </h3>
                             <div class="h-[240px] flex items-center justify-center">
                                 <canvas id="chart-locations-bar" width="500" height="240"></canvas>
+                            </div>
+                        </div>
+                        <div class="glass-panel p-6 mt-6">
+                            <h3 class="chart-label text-xs font-semibold text-white/50 mb-4">Detailed Inventory Status</h3>
+                            <p class="chart-subtext text-[10px] text-white/40 mb-4">Real-time ingredient data from Supabase</p>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-[10px]">
+                                    <thead>
+                                        <tr class="border-b border-white/10 text-left text-white/40">
+                                            <th class="pb-2 pr-4">Ingredient</th>
+                                            <th class="pb-2 pr-4">Current Stock</th>
+                                            <th class="pb-2 pr-4">Avg Daily Use</th>
+                                            <th class="pb-2 pr-4">Days Left</th>
+                                            <th class="pb-2">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="inventory-detail-table" class="text-white/70">
+                                        <tr><td colspan="5" class="py-4 text-center text-white/40">Loading...</td></tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
