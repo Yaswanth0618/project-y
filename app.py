@@ -1,5 +1,5 @@
 """
-jai SpellStock AI | Predictive Inventory — Flask app.
+jai Pantricks AI | Predictive Inventory — Flask app.
 
 Endpoints:
   GET  /                        → main UI
@@ -532,6 +532,35 @@ def home_summary():
         "has_data": len(outlook) > 0,
     })
 
+@app.route('/api/classifier-output', methods=['GET'])
+def api_classifier_output():
+    """
+    Parse and return classifier_output.txt as JSON array.
+    Each line is a JSON object with item predictions.
+    """
+    import json
+    import os
+    
+    classifier_path = os.path.join(os.path.dirname(__file__), 'classifier_output.txt')
+    
+    try:
+        items = []
+        with open(classifier_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        item = json.loads(line)
+                        items.append(item)
+                    except json.JSONDecodeError:
+                        continue
+        
+        return jsonify(items)
+    except FileNotFoundError:
+        return jsonify({"error": "Classifier output file not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/reports', methods=['GET'])
 def api_reports():
     """
@@ -824,7 +853,7 @@ def api_forecasts():
         demand_stats = {
             'horizon': '7 days',
             'updated': 'Just now',
-            'model': 'SpellStock AI',
+            'model': 'Pantricks AI',
             'confidence': f'{confidence}%',
         }
         risk_stats = {
@@ -869,7 +898,7 @@ def api_explain_chart():
         client = genai.Client(api_key=api_key)
 
         system = (
-            "You are SpellStock AI, a restaurant inventory intelligence assistant. "
+            "You are Pantricks AI, a restaurant inventory intelligence assistant. "
             "You explain inventory charts to kitchen managers in 2-3 concise sentences. "
             "Reference the actual data values provided. Highlight anything concerning "
             "(low stock, high waste, risk spikes) and note positive trends too. "
@@ -1377,7 +1406,7 @@ def agent_status():
         by_status[s] = by_status.get(s, 0) + 1
 
     return jsonify({
-        "agent": "SpellStock Autopilot",
+        "agent": "Pantricks Autopilot",
         "mode": "agentic",
         "active_alerts": len(_active_alerts),
         "total_actions": len(all_actions),

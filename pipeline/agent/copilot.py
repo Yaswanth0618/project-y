@@ -57,6 +57,41 @@ def _get_gemini_client():
     return genai.Client(api_key=api_key)
 
 
+def _convert_params_to_gemini_format(params: Optional[Dict]) -> Optional[Dict]:
+    """Convert JSON Schema style parameters to Gemini API format.
+    
+    Gemini requires uppercase type names: STRING, NUMBER, INTEGER, BOOLEAN, ARRAY, OBJECT
+    instead of lowercase: string, number, integer, boolean, array, object
+    """
+    if params is None:
+        return None
+    
+    TYPE_MAP = {
+        "string": "STRING",
+        "number": "NUMBER",
+        "integer": "INTEGER",
+        "boolean": "BOOLEAN",
+        "array": "ARRAY",
+        "object": "OBJECT",
+    }
+    
+    def convert_recursive(obj):
+        if isinstance(obj, dict):
+            result = {}
+            for key, value in obj.items():
+                if key == "type" and isinstance(value, str):
+                    result[key] = TYPE_MAP.get(value.lower(), value.upper())
+                else:
+                    result[key] = convert_recursive(value)
+            return result
+        elif isinstance(obj, list):
+            return [convert_recursive(item) for item in obj]
+        else:
+            return obj
+    
+    return convert_recursive(params)
+
+
 # ── Tool Definitions (Gemini function declarations) ──────────────────────────
 
 TOOL_DECLARATIONS = [
@@ -1301,7 +1336,7 @@ def run_copilot(
         types.FunctionDeclaration(
             name=td["name"],
             description=td["description"],
-            parameters=td.get("parameters"),
+            parameters=_convert_params_to_gemini_format(td.get("parameters")),
         )
         for td in TOOL_DECLARATIONS
     ])

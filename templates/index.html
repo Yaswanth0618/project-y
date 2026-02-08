@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpellStock | Smart Kitchen Inventory</title>
+    <title>Pantricks | Smart Kitchen Inventory</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <link
@@ -31,7 +31,7 @@
                                 d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
                         </svg>
                     </div>
-                    <h1 class="page-title text-2xl font-bold text-white">SpellStock</h1>
+                    <h1 class="page-title text-2xl font-bold text-white">Pantricks</h1>
                     <p class="chart-label text-[10px] text-amber-500/50 uppercase tracking-widest">Kitchen Intelligence
                     </p>
                 </div>
@@ -66,7 +66,7 @@
                                 d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
                         </svg>
                     </div>
-                    <span class="page-title text-3xl font-bold text-white">SpellStock</span>
+                    <span class="page-title text-3xl font-bold text-white">Pantricks</span>
                 </div>
                 <nav class="flex-1 p-4 flex flex-col justify-evenly overflow-y-auto" id="sidebar-nav"></nav>
                 <div class="p-4 border-t border-amber-900/20 space-y-3">
@@ -546,143 +546,6 @@
                         </div>
                     </div>
 
-                    <!-- Forecasts panel (hidden by default) -->
-                    <div id="forecasts-panel" class="hidden pb-16">
-                        <div class="panel-header-row">
-                            <h2 class="forecast-section-title">Forecasts</h2>
-                            <div class="flex items-center gap-2">
-                                <label for="forecasts-location-select"
-                                    class="chart-label text-[10px] text-white/50">Location</label>
-                                <select id="forecasts-location-select"
-                                    class="input-clean px-4 py-2 rounded-xl text-sm min-w-[160px]">
-                                    <option value="all">All locations</option>
-                                    <option value="main">Main Kitchen</option>
-                                    <option value="downtown">Downtown Branch</option>
-                                    <option value="harbor">Harbor View</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="space-y-5">
-                            <div class="collapsible-section glass-panel rounded-2xl overflow-hidden relative"
-                                data-chart-id="fc-demand-forecast">
-                                <div class="chart-info-tooltip hidden"></div>
-                                <div class="collapsible-header px-6 py-4 border-b border-white/5" data-collapse-toggle>
-                                    <h3
-                                        class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider">
-                                        Demand Forecast</h3>
-                                    <div class="flex items-center gap-2">
-                                        <button type="button" class="chart-info-btn chart-info-btn--inline"
-                                            aria-label="Explain this data">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
-                                            </svg>
-                                        </button>
-                                        <svg class="collapse-icon w-5 h-5 text-white/50 shrink-0" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div class="collapsible-body px-6 py-5" style="max-height: 420px;">
-                                    <p class="chart-subtext text-[10px] text-white/40 mb-4">AI-predicted demand for the
-                                        next 7 days.</p>
-                                    <div class="overflow-x-auto">
-                                        <table class="report-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Item</th>
-                                                    <th>Location</th>
-                                                    <th>Day 1–3</th>
-                                                    <th>Day 4–5</th>
-                                                    <th>Day 6–7</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="demand-forecast-tbody">
-                                                <tr>
-                                                    <td colspan="5" class="text-center text-white/30 py-6">Loading
-                                                        forecast data...</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div id="demand-forecast-stats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-                                        <div class="forecast-card"><span class="label block mb-0.5">Horizon</span><span
-                                                class="value" id="fc-stat-horizon">—</span></div>
-                                        <div class="forecast-card"><span class="label block mb-0.5">Updated</span><span
-                                                class="value" id="fc-stat-updated">—</span></div>
-                                        <div class="forecast-card"><span class="label block mb-0.5">Model</span><span
-                                                class="value" id="fc-stat-model">—</span></div>
-                                        <div class="forecast-card"><span
-                                                class="label block mb-0.5">Confidence</span><span class="value"
-                                                id="fc-stat-confidence">—</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="collapsible-section glass-panel rounded-2xl overflow-hidden relative"
-                                data-chart-id="fc-stockout-risk">
-                                <div class="chart-info-tooltip hidden"></div>
-                                <div class="collapsible-header px-6 py-4 border-b border-white/5" data-collapse-toggle>
-                                    <h3
-                                        class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider">
-                                        Stockout Risk</h3>
-                                    <div class="flex items-center gap-2">
-                                        <button type="button" class="chart-info-btn chart-info-btn--inline"
-                                            aria-label="Explain this data">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
-                                            </svg>
-                                        </button>
-                                        <svg class="collapse-icon w-5 h-5 text-white/50 shrink-0" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div class="collapsible-body px-6 py-5" style="max-height: 420px;">
-                                    <p class="chart-subtext text-[10px] text-white/40 mb-4">Predicted risk of stockout
-                                        by item and location.</p>
-                                    <div class="overflow-x-auto">
-                                        <table class="report-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Item</th>
-                                                    <th>Location</th>
-                                                    <th class="num">Risk %</th>
-                                                    <th>Level</th>
-                                                    <th>Suggested action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="stockout-risk-tbody">
-                                                <tr>
-                                                    <td colspan="5" class="text-center text-white/30 py-6">Loading risk
-                                                        data...</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div id="stockout-risk-stats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-                                        <div class="forecast-card"><span class="label block mb-0.5">Critical
-                                                items</span><span class="value status-critical"
-                                                id="sr-stat-critical">—</span></div>
-                                        <div class="forecast-card"><span class="label block mb-0.5">High
-                                                risk</span><span class="value status-low" id="sr-stat-high">—</span>
-                                        </div>
-                                        <div class="forecast-card"><span class="label block mb-0.5">Horizon</span><span
-                                                class="value" id="sr-stat-horizon">—</span></div>
-                                        <div class="forecast-card"><span class="label block mb-0.5">Last run</span><span
-                                                class="value" id="sr-stat-lastrun">—</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <script src="../static/backend/alerts.js"></script>
 
 
@@ -869,7 +732,7 @@
                                         <div class="flex-1">
                                             <div
                                                 class="text-[10px] mono text-amber-400/60 uppercase tracking-widest mb-1.5">
-                                                SpellStock Assistant</div>
+                                                Pantricks Assistant</div>
                                             <div class="text-[13px] text-white/70 leading-relaxed">
                                                 I'm your kitchen inventory assistant. I can <strong
                                                     class="text-white/90">analyze stock levels</strong>, <strong
@@ -1005,6 +868,73 @@
                             </div>
                         </div>
 
+                    <!-- ═══ PROMOTIONS PANEL ═══ -->
+                    <div id="promotions-panel" class="hidden pb-16">
+                        <div class="panel-header-row mb-6">
+                            <div>
+                                <h2 class="section-title text-sm text-white/60">AI Promotions</h2>
+                                <p class="chart-subtext text-[10px] text-white/30 mt-1">Smart promotion recommendations based on surplus predictions</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/5 border border-emerald-500/15">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                                    <span class="chart-label text-[10px] text-white/70">AI Analyzing</span>
+                                </div>
+                                <button id="btn-refresh-promotions" type="button"
+                                    class="text-[9px] mono uppercase tracking-widest py-2 px-4 border border-white/10 rounded-full text-white/40 hover:text-white hover:bg-white/5 transition-all flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                    Refresh
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Stats Cards -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                            <div class="forecast-card"><span class="label block mb-0.5">Total Recommendations</span><span class="value text-amber-400" id="promotions-stat-total">0</span></div>
+                            <div class="forecast-card"><span class="label block mb-0.5">Urgent (≤2 days)</span><span class="value text-red-400" id="promotions-stat-urgent">0</span></div>
+                            <div class="forecast-card"><span class="label block mb-0.5">Est. Savings</span><span class="value text-emerald-400" id="promotions-stat-savings">$0</span></div>
+                            <div class="forecast-card"><span class="label block mb-0.5">Active Promos</span><span class="value text-blue-400" id="promotions-stat-active">0</span></div>
+                        </div>
+
+                        <!-- Explanation Card -->
+                        <div class="glass-panel p-4 mb-6 border-l-4 border-amber-500/50">
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                </svg>
+                                <div>
+                                    <h4 class="text-xs font-semibold text-white/80 mb-1">How Promotion AI Works</h4>
+                                    <p class="text-[11px] text-white/50 leading-relaxed">
+                                        Our AI analyzes <strong class="text-white/70">surplus probability</strong>, <strong class="text-white/70">days until spoilage</strong>, 
+                                        and <strong class="text-white/70">expected excess units</strong> to calculate a promotion score. 
+                                        Items with high surplus risk and short shelf life get priority recommendations — helping you sell more before waste occurs.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Promotions List -->
+                        <div class="glass-panel rounded-2xl overflow-hidden">
+                            <div class="px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                    <h3 class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider leading-none m-0">
+                                        Promotion Recommendations
+                                    </h3>
+                                </div>
+                                <span class="text-[9px] mono text-white/20">AI-generated based on inventory predictions</span>
+                            </div>
+                            <div class="px-6 py-4" style="max-height: 600px; overflow-y: auto;">
+                                <div id="promotions-list" class="space-y-3">
+                                    <p class="text-[10px] mono text-white/20 text-center py-8">Loading promotion recommendations...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                 </main>
             </div>
@@ -1018,7 +948,7 @@
                 </div>
                 <div class="chart-subtext text-[10px] text-white/30 flex items-center gap-3">
                     <span id="footer-time"></span>
-                    <span>SpellStock v2.5</span>
+                    <span>Pantricks v2.5</span>
                 </div>
             </footer>
         </div>

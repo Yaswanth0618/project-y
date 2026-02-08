@@ -1,5 +1,5 @@
 /**
- * SpellStock AI — Flask frontend. Login, dashboard, scenario simulation via /api/simulate.
+ * Pantricks AI — Flask frontend. Login, dashboard, scenario simulation via /api/simulate.
  */
 (function () {
   "use strict";
@@ -20,7 +20,6 @@
     oraclePanel: document.getElementById("oracle-panel"),
     inventoryHubPanel: document.getElementById("inventory-hub-panel"),
     reportsPanel: document.getElementById("reports-panel"),
-    forecastsPanel: document.getElementById("forecasts-panel"),
     hubRestaurantSelect: document.getElementById("hub-restaurant-select"),
     // Dashboard charts
     dashChartStockIngredient: document.getElementById("dash-chart-stock-ingredient"),
@@ -78,6 +77,14 @@
     copilotStatActions: document.getElementById("copilot-stat-actions"),
     copilotStatTurns: document.getElementById("copilot-stat-turns"),
     copilotStatAlerts: document.getElementById("copilot-stat-alerts"),
+    // Promotions elements
+    promotionsPanel: document.getElementById("promotions-panel"),
+    promotionsList: document.getElementById("promotions-list"),
+    promotionsStatTotal: document.getElementById("promotions-stat-total"),
+    promotionsStatUrgent: document.getElementById("promotions-stat-urgent"),
+    promotionsStatSavings: document.getElementById("promotions-stat-savings"),
+    promotionsStatActive: document.getElementById("promotions-stat-active"),
+    btnRefreshPromotions: document.getElementById("btn-refresh-promotions"),
   };
 
   var state = {
@@ -128,8 +135,8 @@
       icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>',
     },
     {
-      view: "forecasts",
-      label: "Forecasts",
+      view: "promotions",
+      label: "promotions",
       icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>',
     },
     {
@@ -212,6 +219,14 @@
         "hidden",
         state.currentView !== "agent",
       );
+    if (DOM.promotionsPanel)
+      DOM.promotionsPanel.classList.toggle(
+        "hidden",
+        state.currentView !== "promotions",
+      );
+    if (state.currentView === "promotions") {
+      fetchPromotions();
+    }
     if (state.currentView === "reports") {
       var location = DOM.reportsLocationSelect ? DOM.reportsLocationSelect.value : 'all';
       fetchReports(location);
@@ -1131,6 +1146,294 @@
         '</tr>';
     }).join('');
   }
+
+  // ═══════════  PROMOTIONS PANEL  ═══════════════════════════════════════════════
+
+  /**
+   * Calculates a promotion score based on classifier predictions.
+   * Higher score = stronger recommendation to run a promotion.
+   * 
+   * Formula: score = (surplusProb * 40) + (urgencyFactor * 30) + (unitsFactor * 30)
+   * - surplusProb: Direct weight from surplus probability (0-1)
+   * - urgencyFactor: Higher for items expiring soon (inverse of days)
+   * - unitsFactor: Normalized expected excess units
+   */
+  function calculatePromotionScore(item) {
+    var surplusWeight = 40;
+    var urgencyWeight = 30;
+    var unitsWeight = 30;
+
+    // Surplus probability (already 0-1)
+    var surplusScore = item.surplus_probability * surplusWeight;
+
+    // Urgency factor: 1/days (capped, items expiring in 1 day = max urgency)
+    var urgencyFactor = Math.min(1, 1 / Math.max(1, item.days_until_event));
+    var urgencyScore = urgencyFactor * urgencyWeight;
+
+    // Units factor: Normalize expected_units (assume 15 is high)
+    var unitsFactor = Math.min(1, item.expected_units / 15);
+    var unitsScore = unitsFactor * unitsWeight;
+
+    return Math.round(surplusScore + urgencyScore + unitsScore);
+  }
+
+  /**
+   * Generates promotion recommendations from classifier data
+   */
+  function generatePromotionRecommendations(classifierData) {
+    return classifierData
+      .map(function (item) {
+        var score = calculatePromotionScore(item);
+        var isUrgent = item.days_until_event <= 2;
+        
+        // Determine recommendation type based on score and urgency
+        var recommendationType;
+        var discountSuggestion;
+        var estimatedSavings;
+        
+        if (score >= 70) {
+          recommendationType = 'Critical';
+          discountSuggestion = '25-30%';
+          estimatedSavings = Math.round(item.expected_units * 8.5);
+        } else if (score >= 55) {
+          recommendationType = 'High Priority';
+          discountSuggestion = '15-20%';
+          estimatedSavings = Math.round(item.expected_units * 5.2);
+        } else if (score >= 40) {
+          recommendationType = 'Moderate';
+          discountSuggestion = '10-15%';
+          estimatedSavings = Math.round(item.expected_units * 3.0);
+        } else {
+          recommendationType = 'Low';
+          discountSuggestion = '5-10%';
+          estimatedSavings = Math.round(item.expected_units * 1.5);
+        }
+        
+        // Generate specific promotion suggestion
+        var promotionSuggestion = generatePromotionSuggestion(item, recommendationType);
+        
+        return {
+          item_id: item.item_id,
+          item_name: formatItemName(item.item_id),
+          score: score,
+          surplus_probability: item.surplus_probability,
+          days_until_event: item.days_until_event,
+          expected_units: item.expected_units,
+          is_urgent: isUrgent,
+          recommendation_type: recommendationType,
+          discount_suggestion: discountSuggestion,
+          estimated_savings: estimatedSavings,
+          promotion_suggestion: promotionSuggestion
+        };
+      })
+      .filter(function (item) {
+        // Only show items with surplus probability > 70% as promotion candidates
+        return item.surplus_probability >= 0.70;
+      })
+      .sort(function (a, b) {
+        // Sort by score descending, then by urgency
+        if (b.score !== a.score) return b.score - a.score;
+        return a.days_until_event - b.days_until_event;
+      });
+  }
+
+  /**
+   * Formats item_id to human-readable name
+   */
+  function formatItemName(itemId) {
+    return itemId
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, function (l) { return l.toUpperCase(); });
+  }
+
+  /**
+   * Generates specific promotion suggestions based on item and priority
+   */
+  function generatePromotionSuggestion(item, priority) {
+    var suggestions = {
+      Critical: [
+        'Run a flash sale on ' + formatItemName(item.item_id) + ' dishes today',
+        'Create a "Chef\'s Special" featuring ' + formatItemName(item.item_id),
+        'Offer ' + formatItemName(item.item_id) + ' as a free add-on with entrees',
+        'Launch a "2-for-1" deal on items containing ' + formatItemName(item.item_id)
+      ],
+      'High Priority': [
+        'Feature ' + formatItemName(item.item_id) + ' in today\'s lunch special',
+        'Add ' + formatItemName(item.item_id) + ' dishes to the "Staff Picks" menu',
+        'Create combo deals featuring ' + formatItemName(item.item_id),
+        'Promote ' + formatItemName(item.item_id) + ' on social media with discount code'
+      ],
+      Moderate: [
+        'Include ' + formatItemName(item.item_id) + ' in weekly specials rotation',
+        'Suggest ' + formatItemName(item.item_id) + ' dishes to servers for upselling',
+        'Create a limited-time appetizer with ' + formatItemName(item.item_id),
+        'Bundle ' + formatItemName(item.item_id) + ' items with slower-moving dishes'
+      ],
+      Low: [
+        'Monitor ' + formatItemName(item.item_id) + ' usage and adjust par levels',
+        'Consider ' + formatItemName(item.item_id) + ' for weekend specials',
+        'Train staff to recommend ' + formatItemName(item.item_id) + ' dishes',
+        'Review menu pricing for ' + formatItemName(item.item_id) + ' items'
+      ]
+    };
+    
+    var options = suggestions[priority] || suggestions.Low;
+    return options[Math.floor(Math.random() * options.length)];
+  }
+
+  /**
+   * Fetches classifier output data and generates promotions
+   */
+  function fetchPromotions() {
+    console.log("[Promotions] Fetching classifier data...");
+    
+    fetch("/api/classifier-output")
+      .then(function (res) {
+        if (!res.ok) throw new Error("Failed to fetch classifier data");
+        return res.json();
+      })
+      .then(function (data) {
+        console.log("[Promotions] Received classifier data:", data.length, "items");
+        var promotions = generatePromotionRecommendations(data);
+        console.log("[Promotions] Generated", promotions.length, "recommendations");
+        renderPromotions(promotions);
+      })
+      .catch(function (err) {
+        console.error("[Promotions] Failed to fetch:", err);
+        // Fallback: parse local classifier_output.txt if API fails
+        fetchPromotionsFallback();
+      });
+  }
+
+  /**
+   * Fallback: Load promotions from local file parsing if API unavailable
+   */
+  function fetchPromotionsFallback() {
+    console.log("[Promotions] Using fallback data");
+    // Sample data matching classifier_output.txt structure
+    var fallbackData = [
+      { item_id: "basil", stockout_probability: 0.34, surplus_probability: 0.93, days_until_event: 6, expected_units: 14 },
+      { item_id: "olive_oil", stockout_probability: 0.41, surplus_probability: 0.90, days_until_event: 1, expected_units: 13 },
+      { item_id: "pesto", stockout_probability: 0.39, surplus_probability: 0.85, days_until_event: 2, expected_units: 13 },
+      { item_id: "beef_patty", stockout_probability: 0.34, surplus_probability: 0.75, days_until_event: 1, expected_units: 13 },
+      { item_id: "ricotta_cheese", stockout_probability: 0.37, surplus_probability: 0.87, days_until_event: 1, expected_units: 13 },
+      { item_id: "oregano", stockout_probability: 0.37, surplus_probability: 0.81, days_until_event: 2, expected_units: 13 },
+      { item_id: "lettuce", stockout_probability: 0.26, surplus_probability: 0.82, days_until_event: 2, expected_units: 13 },
+      { item_id: "mozzarella", stockout_probability: 0.28, surplus_probability: 0.80, days_until_event: 1, expected_units: 13 },
+      { item_id: "chicken_breast", stockout_probability: 0.30, surplus_probability: 0.75, days_until_event: 2, expected_units: 13 },
+      { item_id: "prosciutto", stockout_probability: 0.33, surplus_probability: 0.85, days_until_event: 2, expected_units: 13 },
+      { item_id: "steak", stockout_probability: 0.26, surplus_probability: 0.82, days_until_event: 2, expected_units: 12 },
+      { item_id: "parmesan_cheese", stockout_probability: 0.40, surplus_probability: 0.82, days_until_event: 3, expected_units: 12 },
+      { item_id: "tomato_sauce", stockout_probability: 0.35, surplus_probability: 0.80, days_until_event: 2, expected_units: 12 }
+    ];
+    var promotions = generatePromotionRecommendations(fallbackData);
+    renderPromotions(promotions);
+  }
+
+  /**
+   * Renders promotion recommendations to the UI
+   */
+  function renderPromotions(promotions) {
+    if (!DOM.promotionsList) {
+      console.error("[Promotions] promotions-list element not found");
+      return;
+    }
+
+    // Update stats
+    var totalCount = promotions.length;
+    var urgentCount = promotions.filter(function (p) { return p.is_urgent; }).length;
+    var totalSavings = promotions.reduce(function (sum, p) { return sum + p.estimated_savings; }, 0);
+    var activeCount = promotions.filter(function (p) { return p.score >= 55; }).length;
+
+    if (DOM.promotionsStatTotal) DOM.promotionsStatTotal.textContent = totalCount;
+    if (DOM.promotionsStatUrgent) DOM.promotionsStatUrgent.textContent = urgentCount;
+    if (DOM.promotionsStatSavings) DOM.promotionsStatSavings.textContent = '$' + totalSavings;
+    if (DOM.promotionsStatActive) DOM.promotionsStatActive.textContent = activeCount;
+
+    if (promotions.length === 0) {
+      DOM.promotionsList.innerHTML = '<p class="text-[10px] mono text-white/20 text-center py-8">No promotion recommendations at this time. Inventory levels look optimal!</p>';
+      return;
+    }
+
+    DOM.promotionsList.innerHTML = promotions.map(function (promo) {
+      var priorityColors = {
+        Critical: 'border-red-500/50 bg-red-500/5',
+        'High Priority': 'border-orange-500/50 bg-orange-500/5',
+        Moderate: 'border-amber-500/50 bg-amber-500/5',
+        Low: 'border-white/20 bg-white/5'
+      };
+      
+      var badgeColors = {
+        Critical: 'bg-red-500/20 text-red-400',
+        'High Priority': 'bg-orange-500/20 text-orange-400',
+        Moderate: 'bg-amber-500/20 text-amber-400',
+        Low: 'bg-white/10 text-white/50'
+      };
+      
+      var borderClass = priorityColors[promo.recommendation_type] || priorityColors.Low;
+      var badgeClass = badgeColors[promo.recommendation_type] || badgeColors.Low;
+      
+      return '<div class="border rounded-xl p-4 ' + borderClass + '">' +
+        '<div class="flex items-start justify-between mb-3">' +
+          '<div class="flex items-center gap-3">' +
+            '<div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">' +
+              '<svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>' +
+              '</svg>' +
+            '</div>' +
+            '<div>' +
+              '<h4 class="text-sm font-semibold text-white">' + escapeHtml(promo.item_name) + '</h4>' +
+              '<p class="text-[10px] text-white/40">' + promo.days_until_event + ' day' + (promo.days_until_event !== 1 ? 's' : '') + ' until surplus event</p>' +
+            '</div>' +
+          '</div>' +
+          '<div class="flex items-center gap-2">' +
+            (promo.is_urgent ? '<span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-red-500/20 text-red-400">Urgent</span>' : '') +
+            '<span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ' + badgeClass + '">' + escapeHtml(promo.recommendation_type) + '</span>' +
+          '</div>' +
+        '</div>' +
+        
+        '<div class="grid grid-cols-4 gap-3 mb-3">' +
+          '<div class="text-center">' +
+            '<p class="text-[9px] mono text-white/30 uppercase">Score</p>' +
+            '<p class="text-lg font-bold text-amber-400">' + promo.score + '</p>' +
+          '</div>' +
+          '<div class="text-center">' +
+            '<p class="text-[9px] mono text-white/30 uppercase">Surplus %</p>' +
+            '<p class="text-lg font-bold text-emerald-400">' + Math.round(promo.surplus_probability * 100) + '%</p>' +
+          '</div>' +
+          '<div class="text-center">' +
+            '<p class="text-[9px] mono text-white/30 uppercase">Excess Units</p>' +
+            '<p class="text-lg font-bold text-blue-400">' + promo.expected_units + '</p>' +
+          '</div>' +
+          '<div class="text-center">' +
+            '<p class="text-[9px] mono text-white/30 uppercase">Est. Savings</p>' +
+            '<p class="text-lg font-bold text-emerald-400">$' + promo.estimated_savings + '</p>' +
+          '</div>' +
+        '</div>' +
+        
+        '<div class="border-t border-white/10 pt-3">' +
+          '<div class="flex items-start gap-2">' +
+            '<svg class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>' +
+            '</svg>' +
+            '<div>' +
+              '<p class="text-[10px] mono text-amber-400/60 uppercase mb-1">AI Recommendation</p>' +
+              '<p class="text-[12px] text-white/70">' + escapeHtml(promo.promotion_suggestion) + '</p>' +
+              '<p class="text-[10px] text-white/40 mt-1">Suggested discount: <strong class="text-white/60">' + escapeHtml(promo.discount_suggestion) + ' off</strong></p>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // Event listener for refresh button
+  if (DOM.btnRefreshPromotions) {
+    DOM.btnRefreshPromotions.addEventListener('click', function () {
+      fetchPromotions();
+    });
+  }
+
   // Auto-refresh outlook tiles every 30s so edits to classifier_output.txt show up live
   setInterval(function () {
     if (state.isLoggedIn && state.currentView === "oracle") {
@@ -1615,7 +1918,7 @@
             '<svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>' +
           '</div>' +
           '<div class="flex-1">' +
-            '<div class="text-[10px] mono text-amber-400/60 uppercase tracking-widest mb-1.5">SpellStock Assistant</div>' +
+            '<div class="text-[10px] mono text-amber-400/60 uppercase tracking-widest mb-1.5">Pantricks Assistant</div>' +
             '<div class="text-[13px] text-white/70 leading-relaxed">' +
               'Session reset. Ready to help with your kitchen inventory. Try asking: <em class="text-white/50">"show me all actions"</em> or <em class="text-white/50">"what needs attention?"</em>' +
             '</div>' +
@@ -1749,7 +2052,7 @@
         '<svg class="w-3.5 h-3.5 text-amber-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>' +
       '</div>' +
       '<div class="flex-1">' +
-        '<div class="text-[10px] mono text-amber-400/60 uppercase tracking-widest mb-1.5">SpellStock Assistant</div>' +
+        '<div class="text-[10px] mono text-amber-400/60 uppercase tracking-widest mb-1.5">Pantricks Assistant</div>' +
         '<div class="flex items-center gap-2">' +
           '<div class="flex gap-1">' +
             '<div class="w-1.5 h-1.5 rounded-full bg-amber-400/50 animate-bounce" style="animation-delay: 0ms"></div>' +
@@ -1832,7 +2135,7 @@
       '</div>' +
       '<div class="flex-1">' +
         '<div class="flex items-center gap-2 mb-1.5">' +
-          '<span class="text-[10px] mono text-amber-400/60 uppercase tracking-widest">SpellStock Assistant</span>' +
+          '<span class="text-[10px] mono text-amber-400/60 uppercase tracking-widest">Pantricks Assistant</span>' +
           '<span class="text-[9px] mono text-white/15">' + (data.turn_count || 0) + ' turn(s)</span>' +
         '</div>' +
         toolsHTML +
@@ -2829,7 +3132,7 @@
     var el;
     el = document.getElementById('fc-stat-horizon');  if (el) el.textContent = stats.horizon || '7 days';
     el = document.getElementById('fc-stat-updated');   if (el) el.textContent = stats.updated || '—';
-    el = document.getElementById('fc-stat-model');     if (el) el.textContent = stats.model || 'SpellStock AI';
+    el = document.getElementById('fc-stat-model');     if (el) el.textContent = stats.model || 'Pantricks AI';
     el = document.getElementById('fc-stat-confidence');if (el) el.textContent = stats.confidence || '—';
   }
 

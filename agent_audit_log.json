@@ -11904,5 +11904,813 @@
     "before_state": null,
     "after_state": null,
     "notes": "Bulk execute: 2 succeeded, 0 failed"
+  },
+  {
+    "timestamp": "2026-02-08T11:05:34.924402Z",
+    "action_id": "45a7fd88-fe78-4959-8cfe-817f47093736",
+    "event": "proposed",
+    "actor": "copilot-planner",
+    "action_snapshot": {
+      "action_id": "45a7fd88-fe78-4959-8cfe-817f47093736",
+      "action_type": "adjust_par",
+      "payload": {
+        "ingredient": "mozzarella",
+        "par_change_pct": -10,
+        "notes": "Reduce par due to surplus risk at 72% confidence. Consider specials to move stock."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "medium",
+      "requires_approval": false,
+      "expected_impact": "Reduce par by 10% for Mozzarella to cut waste",
+      "reason": "ML prediction: surplus at 72% confidence. Reducing par to match actual usage.",
+      "status": "proposed",
+      "source_alert_id": "mozzarella",
+      "created_at": "2026-02-08T11:05:34.924341Z",
+      "updated_at": "2026-02-08T11:05:34.924373Z"
+    },
+    "before_state": null,
+    "after_state": null,
+    "notes": "Auto-generated from alert"
+  },
+  {
+    "timestamp": "2026-02-08T11:05:35.013903Z",
+    "action_id": "758643b5-01dd-4022-a59a-3615acd5db11",
+    "event": "proposed",
+    "actor": "copilot-planner",
+    "action_snapshot": {
+      "action_id": "758643b5-01dd-4022-a59a-3615acd5db11",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "chicken_breast",
+        "quantity": 249.0,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 82% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "high",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 249.0 units of Chicken Breast",
+      "reason": "ML prediction: STOCKOUT_RISK at 82% confidence, ~2 days until event. Avg daily use: 49.8",
+      "status": "proposed",
+      "source_alert_id": "chicken_breast",
+      "created_at": "2026-02-08T11:05:35.013799Z",
+      "updated_at": "2026-02-08T11:05:35.013855Z"
+    },
+    "before_state": null,
+    "after_state": null,
+    "notes": "Auto-generated from alert"
+  },
+  {
+    "timestamp": "2026-02-08T11:05:35.138291Z",
+    "action_id": "9ded3884-8cb0-4d1d-b03e-e1ae2e2187e6",
+    "event": "proposed",
+    "actor": "copilot-planner",
+    "action_snapshot": {
+      "action_id": "9ded3884-8cb0-4d1d-b03e-e1ae2e2187e6",
+      "action_type": "adjust_par",
+      "payload": {
+        "ingredient": "sugar",
+        "par_change_pct": -10,
+        "notes": "Reduce par due to surplus risk at 55% confidence. Consider specials to move stock."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "low",
+      "requires_approval": false,
+      "expected_impact": "Reduce par by 10% for Sugar to cut waste",
+      "reason": "ML prediction: surplus at 55% confidence. Reducing par to match actual usage.",
+      "status": "proposed",
+      "source_alert_id": "sugar",
+      "created_at": "2026-02-08T11:05:35.138214Z",
+      "updated_at": "2026-02-08T11:05:35.138255Z"
+    },
+    "before_state": null,
+    "after_state": null,
+    "notes": "Auto-generated from alert"
+  },
+  {
+    "timestamp": "2026-02-08T11:05:35.262396Z",
+    "action_id": "868e4fd6-3fe2-40e5-9b82-3a373fff6c09",
+    "event": "proposed",
+    "actor": "copilot-planner",
+    "action_snapshot": {
+      "action_id": "868e4fd6-3fe2-40e5-9b82-3a373fff6c09",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "steak",
+        "quantity": 830.0,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 78% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "medium",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 830.0 units of Steak",
+      "reason": "ML prediction: STOCKOUT_RISK at 78% confidence, ~1 days until event. Avg daily use: 166.0",
+      "status": "proposed",
+      "source_alert_id": "steak",
+      "created_at": "2026-02-08T11:05:35.262223Z",
+      "updated_at": "2026-02-08T11:05:35.262318Z"
+    },
+    "before_state": null,
+    "after_state": null,
+    "notes": "Auto-generated from alert"
+  },
+  {
+    "timestamp": "2026-02-08T11:05:35.373081Z",
+    "action_id": "4631a794-6be0-4a6b-b82d-ec46346bc09c",
+    "event": "proposed",
+    "actor": "copilot-planner",
+    "action_snapshot": {
+      "action_id": "4631a794-6be0-4a6b-b82d-ec46346bc09c",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "beef_patty",
+        "quantity": 830.0,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 88% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "high",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 830.0 units of Beef Patty",
+      "reason": "ML prediction: STOCKOUT_RISK at 88% confidence, ~1 days until event. Avg daily use: 166.0",
+      "status": "proposed",
+      "source_alert_id": "beef_patty",
+      "created_at": "2026-02-08T11:05:35.373039Z",
+      "updated_at": "2026-02-08T11:05:35.373059Z"
+    },
+    "before_state": null,
+    "after_state": null,
+    "notes": "Auto-generated from alert"
+  },
+  {
+    "timestamp": "2026-02-08T11:05:35.458790Z",
+    "action_id": "3e7da810-6441-448d-a0da-4118c8b4c87d",
+    "event": "proposed",
+    "actor": "copilot-planner",
+    "action_snapshot": {
+      "action_id": "3e7da810-6441-448d-a0da-4118c8b4c87d",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "tomato_sauce",
+        "quantity": 124.5,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 45% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "low",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 124.5 units of Tomato Sauce",
+      "reason": "ML prediction: STOCKOUT_RISK at 45% confidence, ~5 days until event. Avg daily use: 24.9",
+      "status": "proposed",
+      "source_alert_id": "tomato_sauce",
+      "created_at": "2026-02-08T11:05:35.458752Z",
+      "updated_at": "2026-02-08T11:05:35.458774Z"
+    },
+    "before_state": null,
+    "after_state": null,
+    "notes": "Auto-generated from alert"
+  },
+  {
+    "timestamp": "2026-02-08T11:05:35.558968Z",
+    "action_id": "18a99f7d-f46a-4810-8fef-fa35f7798287",
+    "event": "proposed",
+    "actor": "copilot-planner",
+    "action_snapshot": {
+      "action_id": "18a99f7d-f46a-4810-8fef-fa35f7798287",
+      "action_type": "adjust_par",
+      "payload": {
+        "ingredient": "lettuce",
+        "par_change_pct": -10,
+        "notes": "Reduce par due to surplus risk at 95% confidence. Consider specials to move stock."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "medium",
+      "requires_approval": false,
+      "expected_impact": "Reduce par by 10% for Lettuce to cut waste",
+      "reason": "ML prediction: surplus at 95% confidence. Reducing par to match actual usage.",
+      "status": "proposed",
+      "source_alert_id": "lettuce",
+      "created_at": "2026-02-08T11:05:35.558933Z",
+      "updated_at": "2026-02-08T11:05:35.558950Z"
+    },
+    "before_state": null,
+    "after_state": null,
+    "notes": "Auto-generated from alert"
+  },
+  {
+    "timestamp": "2026-02-08T11:05:35.651965Z",
+    "action_id": "569ad539-36c5-4ecf-b4dc-998556e6b316",
+    "event": "proposed",
+    "actor": "copilot-planner",
+    "action_snapshot": {
+      "action_id": "569ad539-36c5-4ecf-b4dc-998556e6b316",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "flour",
+        "quantity": 166.0,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 65% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "medium",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 166.0 units of Flour",
+      "reason": "ML prediction: STOCKOUT_RISK at 65% confidence, ~4 days until event. Avg daily use: 33.2",
+      "status": "proposed",
+      "source_alert_id": "flour",
+      "created_at": "2026-02-08T11:05:35.651931Z",
+      "updated_at": "2026-02-08T11:05:35.651951Z"
+    },
+    "before_state": null,
+    "after_state": null,
+    "notes": "Auto-generated from alert"
+  },
+  {
+    "timestamp": "2026-02-08T11:05:54.988379Z",
+    "action_id": "569ad539-36c5-4ecf-b4dc-998556e6b316",
+    "event": "approved",
+    "actor": "copilot-agent",
+    "action_snapshot": {
+      "action_id": "569ad539-36c5-4ecf-b4dc-998556e6b316",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "flour",
+        "quantity": 166.0,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 65% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "medium",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 166.0 units of Flour",
+      "reason": "ML prediction: STOCKOUT_RISK at 65% confidence, ~4 days until event. Avg daily use: 33.2",
+      "status": "approved",
+      "source_alert_id": "flour",
+      "created_at": "2026-02-08T11:05:35.651931Z",
+      "updated_at": "2026-02-08T11:05:54.988365Z"
+    },
+    "before_state": {
+      "action_id": "569ad539-36c5-4ecf-b4dc-998556e6b316",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "flour",
+        "quantity": 166.0,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 65% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "medium",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 166.0 units of Flour",
+      "reason": "ML prediction: STOCKOUT_RISK at 65% confidence, ~4 days until event. Avg daily use: 33.2",
+      "status": "proposed",
+      "source_alert_id": "flour",
+      "created_at": "2026-02-08T11:05:35.651931Z",
+      "updated_at": "2026-02-08T11:05:35.651951Z"
+    },
+    "after_state": null,
+    "notes": ""
+  },
+  {
+    "timestamp": "2026-02-08T11:05:55.059501Z",
+    "action_id": "18a99f7d-f46a-4810-8fef-fa35f7798287",
+    "event": "approved",
+    "actor": "copilot-agent",
+    "action_snapshot": {
+      "action_id": "18a99f7d-f46a-4810-8fef-fa35f7798287",
+      "action_type": "adjust_par",
+      "payload": {
+        "ingredient": "lettuce",
+        "par_change_pct": -10,
+        "notes": "Reduce par due to surplus risk at 95% confidence. Consider specials to move stock."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "medium",
+      "requires_approval": false,
+      "expected_impact": "Reduce par by 10% for Lettuce to cut waste",
+      "reason": "ML prediction: surplus at 95% confidence. Reducing par to match actual usage.",
+      "status": "approved",
+      "source_alert_id": "lettuce",
+      "created_at": "2026-02-08T11:05:35.558933Z",
+      "updated_at": "2026-02-08T11:05:55.059475Z"
+    },
+    "before_state": {
+      "action_id": "18a99f7d-f46a-4810-8fef-fa35f7798287",
+      "action_type": "adjust_par",
+      "payload": {
+        "ingredient": "lettuce",
+        "par_change_pct": -10,
+        "notes": "Reduce par due to surplus risk at 95% confidence. Consider specials to move stock."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "medium",
+      "requires_approval": false,
+      "expected_impact": "Reduce par by 10% for Lettuce to cut waste",
+      "reason": "ML prediction: surplus at 95% confidence. Reducing par to match actual usage.",
+      "status": "proposed",
+      "source_alert_id": "lettuce",
+      "created_at": "2026-02-08T11:05:35.558933Z",
+      "updated_at": "2026-02-08T11:05:35.558950Z"
+    },
+    "after_state": null,
+    "notes": ""
+  },
+  {
+    "timestamp": "2026-02-08T11:05:55.187464Z",
+    "action_id": "3e7da810-6441-448d-a0da-4118c8b4c87d",
+    "event": "approved",
+    "actor": "copilot-agent",
+    "action_snapshot": {
+      "action_id": "3e7da810-6441-448d-a0da-4118c8b4c87d",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "tomato_sauce",
+        "quantity": 124.5,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 45% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "low",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 124.5 units of Tomato Sauce",
+      "reason": "ML prediction: STOCKOUT_RISK at 45% confidence, ~5 days until event. Avg daily use: 24.9",
+      "status": "approved",
+      "source_alert_id": "tomato_sauce",
+      "created_at": "2026-02-08T11:05:35.458752Z",
+      "updated_at": "2026-02-08T11:05:55.187440Z"
+    },
+    "before_state": {
+      "action_id": "3e7da810-6441-448d-a0da-4118c8b4c87d",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "tomato_sauce",
+        "quantity": 124.5,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 45% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "low",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 124.5 units of Tomato Sauce",
+      "reason": "ML prediction: STOCKOUT_RISK at 45% confidence, ~5 days until event. Avg daily use: 24.9",
+      "status": "proposed",
+      "source_alert_id": "tomato_sauce",
+      "created_at": "2026-02-08T11:05:35.458752Z",
+      "updated_at": "2026-02-08T11:05:35.458774Z"
+    },
+    "after_state": null,
+    "notes": ""
+  },
+  {
+    "timestamp": "2026-02-08T11:05:55.292579Z",
+    "action_id": "4631a794-6be0-4a6b-b82d-ec46346bc09c",
+    "event": "approved",
+    "actor": "copilot-agent",
+    "action_snapshot": {
+      "action_id": "4631a794-6be0-4a6b-b82d-ec46346bc09c",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "beef_patty",
+        "quantity": 830.0,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 88% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "high",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 830.0 units of Beef Patty",
+      "reason": "ML prediction: STOCKOUT_RISK at 88% confidence, ~1 days until event. Avg daily use: 166.0",
+      "status": "approved",
+      "source_alert_id": "beef_patty",
+      "created_at": "2026-02-08T11:05:35.373039Z",
+      "updated_at": "2026-02-08T11:05:55.292559Z"
+    },
+    "before_state": {
+      "action_id": "4631a794-6be0-4a6b-b82d-ec46346bc09c",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "beef_patty",
+        "quantity": 830.0,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 88% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "high",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 830.0 units of Beef Patty",
+      "reason": "ML prediction: STOCKOUT_RISK at 88% confidence, ~1 days until event. Avg daily use: 166.0",
+      "status": "proposed",
+      "source_alert_id": "beef_patty",
+      "created_at": "2026-02-08T11:05:35.373039Z",
+      "updated_at": "2026-02-08T11:05:35.373059Z"
+    },
+    "after_state": null,
+    "notes": ""
+  },
+  {
+    "timestamp": "2026-02-08T11:05:55.383813Z",
+    "action_id": "868e4fd6-3fe2-40e5-9b82-3a373fff6c09",
+    "event": "approved",
+    "actor": "copilot-agent",
+    "action_snapshot": {
+      "action_id": "868e4fd6-3fe2-40e5-9b82-3a373fff6c09",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "steak",
+        "quantity": 830.0,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 78% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "medium",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 830.0 units of Steak",
+      "reason": "ML prediction: STOCKOUT_RISK at 78% confidence, ~1 days until event. Avg daily use: 166.0",
+      "status": "approved",
+      "source_alert_id": "steak",
+      "created_at": "2026-02-08T11:05:35.262223Z",
+      "updated_at": "2026-02-08T11:05:55.383767Z"
+    },
+    "before_state": {
+      "action_id": "868e4fd6-3fe2-40e5-9b82-3a373fff6c09",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "steak",
+        "quantity": 830.0,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 78% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "medium",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 830.0 units of Steak",
+      "reason": "ML prediction: STOCKOUT_RISK at 78% confidence, ~1 days until event. Avg daily use: 166.0",
+      "status": "proposed",
+      "source_alert_id": "steak",
+      "created_at": "2026-02-08T11:05:35.262223Z",
+      "updated_at": "2026-02-08T11:05:35.262318Z"
+    },
+    "after_state": null,
+    "notes": ""
+  },
+  {
+    "timestamp": "2026-02-08T11:05:55.510445Z",
+    "action_id": "9ded3884-8cb0-4d1d-b03e-e1ae2e2187e6",
+    "event": "approved",
+    "actor": "copilot-agent",
+    "action_snapshot": {
+      "action_id": "9ded3884-8cb0-4d1d-b03e-e1ae2e2187e6",
+      "action_type": "adjust_par",
+      "payload": {
+        "ingredient": "sugar",
+        "par_change_pct": -10,
+        "notes": "Reduce par due to surplus risk at 55% confidence. Consider specials to move stock."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "low",
+      "requires_approval": false,
+      "expected_impact": "Reduce par by 10% for Sugar to cut waste",
+      "reason": "ML prediction: surplus at 55% confidence. Reducing par to match actual usage.",
+      "status": "approved",
+      "source_alert_id": "sugar",
+      "created_at": "2026-02-08T11:05:35.138214Z",
+      "updated_at": "2026-02-08T11:05:55.510426Z"
+    },
+    "before_state": {
+      "action_id": "9ded3884-8cb0-4d1d-b03e-e1ae2e2187e6",
+      "action_type": "adjust_par",
+      "payload": {
+        "ingredient": "sugar",
+        "par_change_pct": -10,
+        "notes": "Reduce par due to surplus risk at 55% confidence. Consider specials to move stock."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "low",
+      "requires_approval": false,
+      "expected_impact": "Reduce par by 10% for Sugar to cut waste",
+      "reason": "ML prediction: surplus at 55% confidence. Reducing par to match actual usage.",
+      "status": "proposed",
+      "source_alert_id": "sugar",
+      "created_at": "2026-02-08T11:05:35.138214Z",
+      "updated_at": "2026-02-08T11:05:35.138255Z"
+    },
+    "after_state": null,
+    "notes": ""
+  },
+  {
+    "timestamp": "2026-02-08T11:05:55.618818Z",
+    "action_id": "758643b5-01dd-4022-a59a-3615acd5db11",
+    "event": "approved",
+    "actor": "copilot-agent",
+    "action_snapshot": {
+      "action_id": "758643b5-01dd-4022-a59a-3615acd5db11",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "chicken_breast",
+        "quantity": 249.0,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 82% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "high",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 249.0 units of Chicken Breast",
+      "reason": "ML prediction: STOCKOUT_RISK at 82% confidence, ~2 days until event. Avg daily use: 49.8",
+      "status": "approved",
+      "source_alert_id": "chicken_breast",
+      "created_at": "2026-02-08T11:05:35.013799Z",
+      "updated_at": "2026-02-08T11:05:55.618768Z"
+    },
+    "before_state": {
+      "action_id": "758643b5-01dd-4022-a59a-3615acd5db11",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "chicken_breast",
+        "quantity": 249.0,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 82% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "high",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 249.0 units of Chicken Breast",
+      "reason": "ML prediction: STOCKOUT_RISK at 82% confidence, ~2 days until event. Avg daily use: 49.8",
+      "status": "proposed",
+      "source_alert_id": "chicken_breast",
+      "created_at": "2026-02-08T11:05:35.013799Z",
+      "updated_at": "2026-02-08T11:05:35.013855Z"
+    },
+    "after_state": null,
+    "notes": ""
+  },
+  {
+    "timestamp": "2026-02-08T11:05:55.724688Z",
+    "action_id": "45a7fd88-fe78-4959-8cfe-817f47093736",
+    "event": "approved",
+    "actor": "copilot-agent",
+    "action_snapshot": {
+      "action_id": "45a7fd88-fe78-4959-8cfe-817f47093736",
+      "action_type": "adjust_par",
+      "payload": {
+        "ingredient": "mozzarella",
+        "par_change_pct": -10,
+        "notes": "Reduce par due to surplus risk at 72% confidence. Consider specials to move stock."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "medium",
+      "requires_approval": false,
+      "expected_impact": "Reduce par by 10% for Mozzarella to cut waste",
+      "reason": "ML prediction: surplus at 72% confidence. Reducing par to match actual usage.",
+      "status": "approved",
+      "source_alert_id": "mozzarella",
+      "created_at": "2026-02-08T11:05:34.924341Z",
+      "updated_at": "2026-02-08T11:05:55.724657Z"
+    },
+    "before_state": {
+      "action_id": "45a7fd88-fe78-4959-8cfe-817f47093736",
+      "action_type": "adjust_par",
+      "payload": {
+        "ingredient": "mozzarella",
+        "par_change_pct": -10,
+        "notes": "Reduce par due to surplus risk at 72% confidence. Consider specials to move stock."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "medium",
+      "requires_approval": false,
+      "expected_impact": "Reduce par by 10% for Mozzarella to cut waste",
+      "reason": "ML prediction: surplus at 72% confidence. Reducing par to match actual usage.",
+      "status": "proposed",
+      "source_alert_id": "mozzarella",
+      "created_at": "2026-02-08T11:05:34.924341Z",
+      "updated_at": "2026-02-08T11:05:34.924373Z"
+    },
+    "after_state": null,
+    "notes": ""
+  },
+  {
+    "timestamp": "2026-02-08T11:05:55.836012Z",
+    "action_id": "bulk",
+    "event": "copilot_bulk_approve",
+    "actor": "copilot-agent",
+    "action_snapshot": {
+      "operation": "approve",
+      "count": 8
+    },
+    "before_state": null,
+    "after_state": null,
+    "notes": "Bulk approve: 8 succeeded, 0 failed"
+  },
+  {
+    "timestamp": "2026-02-08T11:06:27.523449Z",
+    "action_id": "3e7da810-6441-448d-a0da-4118c8b4c87d",
+    "event": "executing",
+    "actor": "copilot-agent",
+    "action_snapshot": {
+      "action_id": "3e7da810-6441-448d-a0da-4118c8b4c87d",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "tomato_sauce",
+        "quantity": 124.5,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 45% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "low",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 124.5 units of Tomato Sauce",
+      "reason": "ML prediction: STOCKOUT_RISK at 45% confidence, ~5 days until event. Avg daily use: 24.9",
+      "status": "executing",
+      "source_alert_id": "tomato_sauce",
+      "created_at": "2026-02-08T11:05:35.458752Z",
+      "updated_at": "2026-02-08T11:06:27.523418Z"
+    },
+    "before_state": {
+      "action_id": "3e7da810-6441-448d-a0da-4118c8b4c87d",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "tomato_sauce",
+        "quantity": 124.5,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 45% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "low",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 124.5 units of Tomato Sauce",
+      "reason": "ML prediction: STOCKOUT_RISK at 45% confidence, ~5 days until event. Avg daily use: 24.9",
+      "status": "approved",
+      "source_alert_id": "tomato_sauce",
+      "created_at": "2026-02-08T11:05:35.458752Z",
+      "updated_at": "2026-02-08T11:05:55.187440Z"
+    },
+    "after_state": null,
+    "notes": ""
+  },
+  {
+    "timestamp": "2026-02-08T11:06:27.589165Z",
+    "action_id": "3e7da810-6441-448d-a0da-4118c8b4c87d",
+    "event": "executed",
+    "actor": "copilot-agent",
+    "action_snapshot": {
+      "action_id": "3e7da810-6441-448d-a0da-4118c8b4c87d",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "tomato_sauce",
+        "quantity": 124.5,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 45% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "low",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 124.5 units of Tomato Sauce",
+      "reason": "ML prediction: STOCKOUT_RISK at 45% confidence, ~5 days until event. Avg daily use: 24.9",
+      "status": "executed",
+      "source_alert_id": "tomato_sauce",
+      "created_at": "2026-02-08T11:05:35.458752Z",
+      "updated_at": "2026-02-08T11:06:27.589139Z"
+    },
+    "before_state": {
+      "action_id": "3e7da810-6441-448d-a0da-4118c8b4c87d",
+      "action_type": "draft_po",
+      "payload": {
+        "ingredient": "tomato_sauce",
+        "quantity": 124.5,
+        "unit": "units",
+        "due_time": "within 48h",
+        "notes": "Auto-planned: STOCKOUT_RISK at 45% confidence. Verify stock before ordering."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "low",
+      "requires_approval": false,
+      "expected_impact": "Draft PO for 124.5 units of Tomato Sauce",
+      "reason": "ML prediction: STOCKOUT_RISK at 45% confidence, ~5 days until event. Avg daily use: 24.9",
+      "status": "executing",
+      "source_alert_id": "tomato_sauce",
+      "created_at": "2026-02-08T11:05:35.458752Z",
+      "updated_at": "2026-02-08T11:06:27.523418Z"
+    },
+    "after_state": null,
+    "notes": "{\"po_number\": \"PO-3E7DA810\", \"ingredient\": \"tomato_sauce\", \"quantity\": 124.5, \"status\": \"DRAFT\", \"message\": \"Draft PO created for tomato_sauce. Awaiting send approval.\"}"
+  },
+  {
+    "timestamp": "2026-02-08T11:06:27.691189Z",
+    "action_id": "9ded3884-8cb0-4d1d-b03e-e1ae2e2187e6",
+    "event": "executing",
+    "actor": "copilot-agent",
+    "action_snapshot": {
+      "action_id": "9ded3884-8cb0-4d1d-b03e-e1ae2e2187e6",
+      "action_type": "adjust_par",
+      "payload": {
+        "ingredient": "sugar",
+        "par_change_pct": -10,
+        "notes": "Reduce par due to surplus risk at 55% confidence. Consider specials to move stock."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "low",
+      "requires_approval": false,
+      "expected_impact": "Reduce par by 10% for Sugar to cut waste",
+      "reason": "ML prediction: surplus at 55% confidence. Reducing par to match actual usage.",
+      "status": "executing",
+      "source_alert_id": "sugar",
+      "created_at": "2026-02-08T11:05:35.138214Z",
+      "updated_at": "2026-02-08T11:06:27.691169Z"
+    },
+    "before_state": {
+      "action_id": "9ded3884-8cb0-4d1d-b03e-e1ae2e2187e6",
+      "action_type": "adjust_par",
+      "payload": {
+        "ingredient": "sugar",
+        "par_change_pct": -10,
+        "notes": "Reduce par due to surplus risk at 55% confidence. Consider specials to move stock."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "low",
+      "requires_approval": false,
+      "expected_impact": "Reduce par by 10% for Sugar to cut waste",
+      "reason": "ML prediction: surplus at 55% confidence. Reducing par to match actual usage.",
+      "status": "approved",
+      "source_alert_id": "sugar",
+      "created_at": "2026-02-08T11:05:35.138214Z",
+      "updated_at": "2026-02-08T11:05:55.510426Z"
+    },
+    "after_state": null,
+    "notes": ""
+  },
+  {
+    "timestamp": "2026-02-08T11:06:27.846286Z",
+    "action_id": "9ded3884-8cb0-4d1d-b03e-e1ae2e2187e6",
+    "event": "executed",
+    "actor": "copilot-agent",
+    "action_snapshot": {
+      "action_id": "9ded3884-8cb0-4d1d-b03e-e1ae2e2187e6",
+      "action_type": "adjust_par",
+      "payload": {
+        "ingredient": "sugar",
+        "par_change_pct": -10,
+        "notes": "Reduce par due to surplus risk at 55% confidence. Consider specials to move stock."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "low",
+      "requires_approval": false,
+      "expected_impact": "Reduce par by 10% for Sugar to cut waste",
+      "reason": "ML prediction: surplus at 55% confidence. Reducing par to match actual usage.",
+      "status": "executed",
+      "source_alert_id": "sugar",
+      "created_at": "2026-02-08T11:05:35.138214Z",
+      "updated_at": "2026-02-08T11:06:27.846174Z"
+    },
+    "before_state": {
+      "action_id": "9ded3884-8cb0-4d1d-b03e-e1ae2e2187e6",
+      "action_type": "adjust_par",
+      "payload": {
+        "ingredient": "sugar",
+        "par_change_pct": -10,
+        "notes": "Reduce par due to surplus risk at 55% confidence. Consider specials to move stock."
+      },
+      "owner_role": "Purchasing",
+      "risk_level": "low",
+      "requires_approval": false,
+      "expected_impact": "Reduce par by 10% for Sugar to cut waste",
+      "reason": "ML prediction: surplus at 55% confidence. Reducing par to match actual usage.",
+      "status": "executing",
+      "source_alert_id": "sugar",
+      "created_at": "2026-02-08T11:05:35.138214Z",
+      "updated_at": "2026-02-08T11:06:27.691169Z"
+    },
+    "after_state": null,
+    "notes": "{\"ingredient\": \"sugar\", \"par_change_pct\": -10, \"message\": \"Par level adjusted by -10% for sugar.\"}"
+  },
+  {
+    "timestamp": "2026-02-08T11:06:28.020326Z",
+    "action_id": "bulk",
+    "event": "copilot_bulk_execute",
+    "actor": "copilot-agent",
+    "action_snapshot": {
+      "operation": "execute",
+      "count": 2
+    },
+    "before_state": null,
+    "after_state": null,
+    "notes": "Bulk execute: 2 succeeded, 0 failed"
   }
 ]
