@@ -24,10 +24,7 @@ def parse_scenario(user_input: str) -> dict:
     try:
         if api_key:
             try:
-                import google.generativeai as genai
-                # For newer versions, use this instead:
-                # from google import genai
-                # from google.genai import types
+                from google import genai
             except ImportError:
                 result = {}
                 api_key = None

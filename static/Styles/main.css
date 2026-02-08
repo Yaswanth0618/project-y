@@ -173,6 +173,29 @@ body {
     color: rgba(255, 255, 255, 0.25);
 }
 
+/* Style native <select> dropdown options for dark theme */
+select.input-clean {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23fef3c7' viewBox='0 0 16 16'%3E%3Cpath d='M1.5 5.5l6.5 6 6.5-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+    cursor: pointer;
+}
+
+select.input-clean option {
+    background: #1c1917;
+    color: #fef3c7;
+    padding: 8px 12px;
+}
+
+select.input-clean option:hover,
+select.input-clean option:checked {
+    background: #d97706;
+    color: #fff;
+}
+
 .btn-primary {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
