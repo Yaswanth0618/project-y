@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='Styles/main.css') }}">
     <script src="{{ url_for('static', filename='backend/main.js') }}"></script>
 </head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 
 <body class="noise-overlay bg-[#0a0a0c] text-[#f8fafc] overflow-x-hidden min-h-screen">
     <div id="root">
@@ -530,6 +532,8 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <script src="../static/backend/alerts.js"></script>
 
                     <!-- ═══ ALERTS PANEL ═══ -->
                     <div id="alerts-panel" class="hidden pb-16">
@@ -567,262 +571,297 @@
                                 </p>
                             </div>
                         </div>
+                        <style>
+                            .mini-card {
+                                background: rgba(255, 255, 255, 0.04);
+                                border: 1px solid rgba(255, 255, 255, 0.08);
+                                border-radius: 0.75rem;
+                                padding: 0.35rem 0.4rem;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                color: rgba(255, 255, 255, 0.6);
+                            }
+
+                            .mini-card b {
+                                color: white;
+                                font-size: 0.75rem;
+                            }
+                        </style>
 
                         <!-- ═══ RESULTS STATE (hidden until scan completes) ═══ -->
-                        <div id="alerts-results" class="hidden">
+                        <!-- ═══ RESULTS STATE ═══ -->
+                        <div id="alerts-results" class="hidden h-[calc(100vh-8rem)]">
+
+                            <!-- Two-column fixed layout -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+
+                                <!-- STOCKOUTS -->
+                                <div class="flex flex-col h-full rounded-2xl border border-white/10 bg-white/5">
+                                    <div class="p-4 border-b border-white/10">
+                                        <h3 class="text-sm font-semibold text-indigo-300">Stockout Alerts</h3>
+
+                                        <!-- Mini summary -->
+                                        <div class="grid grid-cols-4 gap-2 mt-3 text-[10px]">
+                                            <div class="mini-card"><span>Pred</span><b id="s-pred">-</b></div>
+                                            <div class="mini-card"><span>Risk</span><b id="s-risk">-</b></div>
+                                            <div class="mini-card"><span>Rules</span><b id="s-rules">-</b></div>
+                                            <div class="mini-card"><span>Alerts</span><b id="s-alerts">-</b></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Scrollable list -->
+                                    <div id="alerts-stockout" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+                                </div>
+
+                                <!-- WASTAGE -->
+                                <div class="flex flex-col h-full rounded-2xl border border-white/10 bg-white/5">
+                                    <div class="p-4 border-b border-white/10">
+                                        <h3 class="text-sm font-semibold text-emerald-300">Wastage Alerts</h3>
+
+                                        <!-- Mini summary -->
+                                        <div class="grid grid-cols-4 gap-2 mt-3 text-[10px]">
+                                            <div class="mini-card"><span>Pred</span><b id="w-pred">-</b></div>
+                                            <div class="mini-card"><span>Risk</span><b id="w-risk">-</b></div>
+                                            <div class="mini-card"><span>Rules</span><b id="w-rules">-</b></div>
+                                            <div class="mini-card"><span>Alerts</span><b id="w-alerts">-</b></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Scrollable list -->
+                                    <div id="alerts-waste" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+
+                        <!-- ═══ AGENT AUTOPILOT PANEL ═══ -->
+                        <div id="agent-panel" class="hidden pb-16">
                             <div class="panel-header-row mb-6">
                                 <div>
-                                    <h2 class="section-title text-sm text-white/60">AI Risk Alerts</h2>
-                                    <p class="chart-subtext text-[10px] text-white/30 mt-1">Context-aware alerts powered
-                                        by Gemini + Supabase historical data</p>
+                                    <h2 class="section-title text-sm text-white/60">Agent Autopilot</h2>
+                                    <p class="chart-subtext text-[10px] text-white/30 mt-1">Autonomous inventory
+                                        operations
+                                        — Sense → Plan → Execute</p>
                                 </div>
-                                <button id="btn-run-check-again" type="button"
-                                    class="btn-primary flex items-center gap-3 py-2 pl-2 pr-6 rounded-full text-sm font-semibold">
-                                    <div id="check-icon-again"
-                                        class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-black">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                                d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                        </svg>
-                                    </div>
-                                    <span>Re-Scan</span>
-                                </button>
-                            </div>
-                            <!-- Pipeline summary cards -->
-                            <div id="pipeline-summary" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                                <div class="forecast-card"><span class="label block mb-0.5">Predictions</span><span
-                                        class="value" id="sum-predictions">-</span></div>
-                                <div class="forecast-card"><span class="label block mb-0.5">Risk Events</span><span
-                                        class="value" id="sum-risk-events">-</span></div>
-                                <div class="forecast-card"><span class="label block mb-0.5">After Rules</span><span
-                                        class="value" id="sum-after-rules">-</span></div>
-                                <div class="forecast-card"><span class="label block mb-0.5">Alerts Sent</span><span
-                                        class="value" id="sum-alerts-sent">-</span></div>
-                            </div>
-                            <!-- Alert cards container -->
-                            <div id="alerts-list" class="space-y-4"></div>
-                        </div>
-                    </div>
-
-                    <!-- ═══ AGENT AUTOPILOT PANEL ═══ -->
-                    <div id="agent-panel" class="hidden pb-16">
-                        <div class="panel-header-row mb-6">
-                            <div>
-                                <h2 class="section-title text-sm text-white/60">Agent Autopilot</h2>
-                                <p class="chart-subtext text-[10px] text-white/30 mt-1">Autonomous inventory operations
-                                    — Sense → Plan → Execute</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <!-- Autopilot Toggle -->
-                                <div class="flex items-center gap-2 glass-panel px-4 py-2 rounded-full border-white/10">
-                                    <span
-                                        class="text-[9px] mono uppercase tracking-widest text-white/40">Autopilot</span>
-                                    <div id="autopilot-toggle"
-                                        class="flex rounded-full bg-white/5 border border-white/10 overflow-hidden">
-                                        <button data-mode="off"
-                                            class="autopilot-mode-btn active text-[9px] mono uppercase tracking-widest px-3 py-1.5 transition-all">Off</button>
-                                        <button data-mode="guarded"
-                                            class="autopilot-mode-btn text-[9px] mono uppercase tracking-widest px-3 py-1.5 transition-all">Guarded</button>
-                                        <button data-mode="full"
-                                            class="autopilot-mode-btn text-[9px] mono uppercase tracking-widest px-3 py-1.5 transition-all">Full</button>
-                                    </div>
-                                </div>
-                                <button id="btn-agent-plan" type="button"
-                                    class="btn-primary flex items-center gap-3 py-2 pl-2 pr-6 rounded-full text-sm font-semibold">
-                                    <div
-                                        class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-black">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                                        </svg>
-                                    </div>
-                                    <span>Generate Plan</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Agent stats cards -->
-                        <div id="agent-stats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                            <div class="forecast-card"><span class="label block mb-0.5">Total Actions</span><span
-                                    class="value" id="agent-stat-total">0</span></div>
-                            <div class="forecast-card"><span class="label block mb-0.5">Proposed</span><span
-                                    class="value text-amber-400" id="agent-stat-proposed">0</span></div>
-                            <div class="forecast-card"><span class="label block mb-0.5">Executed</span><span
-                                    class="value text-emerald-400" id="agent-stat-executed">0</span></div>
-                            <div class="forecast-card"><span class="label block mb-0.5">Alerts</span><span
-                                    class="value text-indigo-400" id="agent-stat-alerts">0</span></div>
-                        </div>
-
-                        <!-- Command Input -->
-                        <div class="glass-panel p-4 mb-6 flex items-center gap-3">
-                            <div class="flex-1">
-                                <input id="agent-command-input" type="text"
-                                    placeholder="Operator command... e.g. 'Fix top 3 stockout alerts' or 'Draft PO for chicken'"
-                                    class="input-clean w-full px-4 py-3 rounded-xl text-sm" />
-                            </div>
-                            <button id="btn-agent-command" type="button"
-                                class="btn-primary w-10 h-10 rounded-full flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <!-- Action Queue Table -->
-                        <div class="collapsible-section glass-panel rounded-2xl overflow-hidden mb-6">
-                            <div class="collapsible-header px-6 py-4 border-b border-white/5" data-collapse-toggle>
-                                <h3 class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider">
-                                    Action Queue</h3>
                                 <div class="flex items-center gap-3">
-                                    <select id="agent-filter-status"
-                                        class="input-clean px-3 py-1.5 rounded-lg text-[10px] mono">
-                                        <option value="">All Status</option>
-                                        <option value="proposed">Proposed</option>
-                                        <option value="approved">Approved</option>
-                                        <option value="executed">Executed</option>
-                                        <option value="rejected">Rejected</option>
-                                        <option value="rolled_back">Rolled Back</option>
-                                    </select>
-                                    <select id="agent-filter-owner"
-                                        class="input-clean px-3 py-1.5 rounded-lg text-[10px] mono">
-                                        <option value="">All Owners</option>
-                                        <option value="Purchasing">Purchasing</option>
-                                        <option value="Kitchen">Kitchen</option>
-                                        <option value="VendorOps">VendorOps</option>
-                                    </select>
-                                    <button id="btn-agent-auto" type="button"
-                                        class="text-[9px] mono uppercase tracking-widest py-1.5 px-3 border border-emerald-500/30 text-emerald-400 rounded-full hover:bg-emerald-500/10 transition-all">Auto-Execute</button>
+                                    <!-- Autopilot Toggle -->
+                                    <div
+                                        class="flex items-center gap-2 glass-panel px-4 py-2 rounded-full border-white/10">
+                                        <span
+                                            class="text-[9px] mono uppercase tracking-widest text-white/40">Autopilot</span>
+                                        <div id="autopilot-toggle"
+                                            class="flex rounded-full bg-white/5 border border-white/10 overflow-hidden">
+                                            <button data-mode="off"
+                                                class="autopilot-mode-btn active text-[9px] mono uppercase tracking-widest px-3 py-1.5 transition-all">Off</button>
+                                            <button data-mode="guarded"
+                                                class="autopilot-mode-btn text-[9px] mono uppercase tracking-widest px-3 py-1.5 transition-all">Guarded</button>
+                                            <button data-mode="full"
+                                                class="autopilot-mode-btn text-[9px] mono uppercase tracking-widest px-3 py-1.5 transition-all">Full</button>
+                                        </div>
+                                    </div>
+                                    <button id="btn-agent-plan" type="button"
+                                        class="btn-primary flex items-center gap-3 py-2 pl-2 pr-6 rounded-full text-sm font-semibold">
+                                        <div
+                                            class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-black">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                            </svg>
+                                        </div>
+                                        <span>Generate Plan</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            
+
+                            <!-- Command Input -->
+                            <div class="glass-panel p-4 mb-6 flex items-center gap-3">
+                                <div class="flex-1">
+                                    <input id="agent-command-input" type="text"
+                                        placeholder="Operator command... e.g. 'Fix top 3 stockout alerts' or 'Draft PO for chicken'"
+                                        class="input-clean w-full px-4 py-3 rounded-xl text-sm" />
+                                </div>
+                                <button id="btn-agent-command" type="button"
+                                    class="btn-primary w-10 h-10 rounded-full flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <!-- Action Queue Table -->
+                            <div class="collapsible-section glass-panel rounded-2xl overflow-hidden mb-6">
+                                <div class="collapsible-header px-6 py-4 border-b border-white/5" data-collapse-toggle>
+                                    <h3
+                                        class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider">
+                                        Action Queue</h3>
+                                    <div class="flex items-center gap-3">
+                                        <select id="agent-filter-status"
+                                            class="input-clean px-3 py-1.5 rounded-lg text-[10px] mono">
+                                            <option value="">All Status</option>
+                                            <option value="proposed">Proposed</option>
+                                            <option value="approved">Approved</option>
+                                            <option value="executed">Executed</option>
+                                            <option value="rejected">Rejected</option>
+                                            <option value="rolled_back">Rolled Back</option>
+                                        </select>
+                                        <select id="agent-filter-owner"
+                                            class="input-clean px-3 py-1.5 rounded-lg text-[10px] mono">
+                                            <option value="">All Owners</option>
+                                            <option value="Purchasing">Purchasing</option>
+                                            <option value="Kitchen">Kitchen</option>
+                                            <option value="VendorOps">VendorOps</option>
+                                        </select>
+                                        <button id="btn-agent-auto" type="button"
+                                            class="text-[9px] mono uppercase tracking-widest py-1.5 px-3 border border-emerald-500/30 text-emerald-400 rounded-full hover:bg-emerald-500/10 transition-all">Auto-Execute</button>
+                                        <svg class="collapse-icon w-5 h-5 text-white/50 shrink-0" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="collapsible-body px-6 py-4" style="max-height: 600px; overflow-y: auto;">
+                                    <div class="overflow-x-auto">
+                                        <table class="report-table" id="agent-queue-table">
+                                            <thead>
+                                                <tr>
+                                                    <th class="cursor-pointer hover:text-white/80"
+                                                        data-sort="action_type">
+                                                        Type ↕</th>
+                                                    <th>Ingredient</th>
+                                                    <th class="cursor-pointer hover:text-white/80"
+                                                        data-sort="risk_level">
+                                                        Risk ↕</th>
+                                                    <th class="cursor-pointer hover:text-white/80"
+                                                        data-sort="owner_role">
+                                                        Owner ↕</th>
+                                                    <th class="cursor-pointer hover:text-white/80" data-sort="status">
+                                                        Status
+                                                        ↕</th>
+                                                    <th>Reason</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="agent-queue-body">
+                                                <tr>
+                                                    <td colspan="7" class="text-center text-white/20 py-8">No actions
+                                                        yet.
+                                                        Click "Generate Plan" to start.</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Diff View -->
+                            <div id="agent-diff-view" class="hidden glass-panel rounded-2xl overflow-hidden mb-6">
+                                <div class="px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                                    <h3
+                                        class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider">
+                                        Action Details — Diff View</h3>
+                                    <button id="btn-close-diff"
+                                        class="text-white/30 hover:text-white transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div id="agent-diff-content" class="px-6 py-4 space-y-4"></div>
+                            </div>
+
+                            <!-- Audit Log -->
+                            <div class="collapsible-section glass-panel rounded-2xl overflow-hidden">
+                                <div class="collapsible-header px-6 py-4 border-b border-white/5" data-collapse-toggle>
+                                    <h3
+                                        class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider">
+                                        Audit Log</h3>
                                     <svg class="collapse-icon w-5 h-5 text-white/50 shrink-0" fill="none"
                                         stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </div>
-                            </div>
-                            <div class="collapsible-body px-6 py-4" style="max-height: 600px; overflow-y: auto;">
-                                <div class="overflow-x-auto">
-                                    <table class="report-table" id="agent-queue-table">
-                                        <thead>
-                                            <tr>
-                                                <th class="cursor-pointer hover:text-white/80" data-sort="action_type">
-                                                    Type ↕</th>
-                                                <th>Ingredient</th>
-                                                <th class="cursor-pointer hover:text-white/80" data-sort="risk_level">
-                                                    Risk ↕</th>
-                                                <th class="cursor-pointer hover:text-white/80" data-sort="owner_role">
-                                                    Owner ↕</th>
-                                                <th class="cursor-pointer hover:text-white/80" data-sort="status">Status
-                                                    ↕</th>
-                                                <th>Reason</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="agent-queue-body">
-                                            <tr>
-                                                <td colspan="7" class="text-center text-white/20 py-8">No actions yet.
-                                                    Click "Generate Plan" to start.</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                <div class="collapsible-body px-6 py-4" style="max-height: 400px; overflow-y: auto;">
+                                    <div id="agent-audit-log" class="space-y-2">
+                                        <p class="text-[10px] mono text-white/20 text-center py-4">No audit entries yet.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Diff View -->
-                        <div id="agent-diff-view" class="hidden glass-panel rounded-2xl overflow-hidden mb-6">
-                            <div class="px-6 py-4 border-b border-white/5 flex items-center justify-between">
-                                <h3 class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider">
-                                    Action Details — Diff View</h3>
-                                <button id="btn-close-diff" class="text-white/30 hover:text-white transition-colors">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
-                            <div id="agent-diff-content" class="px-6 py-4 space-y-4"></div>
-                        </div>
-
-                        <!-- Audit Log -->
-                        <div class="collapsible-section glass-panel rounded-2xl overflow-hidden">
-                            <div class="collapsible-header px-6 py-4 border-b border-white/5" data-collapse-toggle>
-                                <h3 class="chart-label text-xs font-semibold text-white/70 uppercase tracking-wider">
-                                    Audit Log</h3>
-                                <svg class="collapse-icon w-5 h-5 text-white/50 shrink-0" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
-                            <div class="collapsible-body px-6 py-4" style="max-height: 400px; overflow-y: auto;">
-                                <div id="agent-audit-log" class="space-y-2">
-                                    <p class="text-[10px] mono text-white/20 text-center py-4">No audit entries yet.</p>
+                        <!-- ═══ CHAT PANEL ═══ -->
+                        <div id="chat-panel" class="hidden pb-16">
+                            <div class="panel-header-row mb-6">
+                                <div>
+                                    <h2 class="section-title text-sm text-white/60">Manager Assistant</h2>
+                                    <p class="chart-subtext text-[10px] text-white/30 mt-1">Ask questions about
+                                        inventory,
+                                        risks, and recommendations</p>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- ═══ CHAT PANEL ═══ -->
-                    <div id="chat-panel" class="hidden pb-16">
-                        <div class="panel-header-row mb-6">
-                            <div>
-                                <h2 class="section-title text-sm text-white/60">Manager Assistant</h2>
-                                <p class="chart-subtext text-[10px] text-white/30 mt-1">Ask questions about inventory,
-                                    risks, and recommendations</p>
-                            </div>
-                        </div>
-                        <div class="glass-panel flex flex-col" style="height: calc(100vh - 220px); min-height: 400px;">
-                            <!-- Chat messages -->
-                            <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4">
-                                <div class="flex items-start gap-3">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0">
-                                        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19 14.5M14.25 3.104c.251.023.501.05.75.082M19 14.5l-1.405 2.81A2.25 2.25 0 0115.604 19H8.396a2.25 2.25 0 01-1.991-1.69L5 14.5m14 0H5" />
+                            <div class="glass-panel flex flex-col"
+                                style="height: calc(100vh - 220px); min-height: 400px;">
+                                <!-- Chat messages -->
+                                <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4">
+                                    <div class="flex items-start gap-3">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0">
+                                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19 14.5M14.25 3.104c.251.023.501.05.75.082M19 14.5l-1.405 2.81A2.25 2.25 0 0115.604 19H8.396a2.25 2.25 0 01-1.991-1.69L5 14.5m14 0H5" />
+                                            </svg>
+                                        </div>
+                                        <div
+                                            class="bg-white/5 border border-white/5 rounded-2xl rounded-tl-sm px-4 py-3 max-w-[80%]">
+                                            <p class="text-sm text-white/80">Hi! I'm SpellStock AI. Ask me about
+                                                inventory
+                                                risks, recent trends, or what to prep for the weekend. I'll reference
+                                                real
+                                                data from your operations.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Quick question chips -->
+                                <div class="px-6 py-3 border-t border-white/5 flex flex-wrap gap-2"
+                                    id="chat-quick-questions">
+                                    <button
+                                        class="chat-chip text-[9px] mono uppercase tracking-widest py-1.5 px-3 border border-white/10 rounded-full hover:bg-white hover:text-black transition-all"
+                                        data-q="Why did I get this alert?">Why this alert?</button>
+                                    <button
+                                        class="chat-chip text-[9px] mono uppercase tracking-widest py-1.5 px-3 border border-white/10 rounded-full hover:bg-white hover:text-black transition-all"
+                                        data-q="What items are riskiest this week?">Riskiest items</button>
+                                    <button
+                                        class="chat-chip text-[9px] mono uppercase tracking-widest py-1.5 px-3 border border-white/10 rounded-full hover:bg-white hover:text-black transition-all"
+                                        data-q="What should I prep more for the weekend?">Weekend prep</button>
+                                    <button
+                                        class="chat-chip text-[9px] mono uppercase tracking-widest py-1.5 px-3 border border-white/10 rounded-full hover:bg-white hover:text-black transition-all"
+                                        data-q="How can I reduce waste this week?">Reduce waste</button>
+                                </div>
+                                <!-- Chat input -->
+                                <div class="p-4 border-t border-white/5 flex items-center gap-3">
+                                    <input id="chat-input" type="text"
+                                        placeholder="Ask about inventory, alerts, or recommendations..."
+                                        class="input-clean flex-1 px-4 py-3 rounded-xl text-sm" />
+                                    <button id="btn-chat-send" type="button"
+                                        class="btn-primary w-10 h-10 rounded-full flex items-center justify-center shrink-0">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                                         </svg>
-                                    </div>
-                                    <div
-                                        class="bg-white/5 border border-white/5 rounded-2xl rounded-tl-sm px-4 py-3 max-w-[80%]">
-                                        <p class="text-sm text-white/80">Hi! I'm SpellStock AI. Ask me about inventory
-                                            risks, recent trends, or what to prep for the weekend. I'll reference real
-                                            data from your operations.</p>
-                                    </div>
+                                    </button>
                                 </div>
                             </div>
-                            <!-- Quick question chips -->
-                            <div class="px-6 py-3 border-t border-white/5 flex flex-wrap gap-2"
-                                id="chat-quick-questions">
-                                <button
-                                    class="chat-chip text-[9px] mono uppercase tracking-widest py-1.5 px-3 border border-white/10 rounded-full hover:bg-white hover:text-black transition-all"
-                                    data-q="Why did I get this alert?">Why this alert?</button>
-                                <button
-                                    class="chat-chip text-[9px] mono uppercase tracking-widest py-1.5 px-3 border border-white/10 rounded-full hover:bg-white hover:text-black transition-all"
-                                    data-q="What items are riskiest this week?">Riskiest items</button>
-                                <button
-                                    class="chat-chip text-[9px] mono uppercase tracking-widest py-1.5 px-3 border border-white/10 rounded-full hover:bg-white hover:text-black transition-all"
-                                    data-q="What should I prep more for the weekend?">Weekend prep</button>
-                                <button
-                                    class="chat-chip text-[9px] mono uppercase tracking-widest py-1.5 px-3 border border-white/10 rounded-full hover:bg-white hover:text-black transition-all"
-                                    data-q="How can I reduce waste this week?">Reduce waste</button>
-                            </div>
-                            <!-- Chat input -->
-                            <div class="p-4 border-t border-white/5 flex items-center gap-3">
-                                <input id="chat-input" type="text"
-                                    placeholder="Ask about inventory, alerts, or recommendations..."
-                                    class="input-clean flex-1 px-4 py-3 rounded-xl text-sm" />
-                                <button id="btn-chat-send" type="button"
-                                    class="btn-primary w-10 h-10 rounded-full flex items-center justify-center shrink-0">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                            d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                                    </svg>
-                                </button>
-                            </div>
                         </div>
-                    </div>
                 </main>
             </div>
 
