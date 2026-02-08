@@ -253,7 +253,9 @@ body {
 #reports-panel .collapsible-header,
 #reports-panel .collapsible-body,
 #forecasts-panel .collapsible-header,
-#forecasts-panel .collapsible-body {
+#forecasts-panel .collapsible-body,
+#agent-panel .collapsible-header,
+#agent-panel .collapsible-body {
     padding-left: 2rem;
 }
 
@@ -393,7 +395,8 @@ body {
 }
 
 #reports-panel.panel-visible .space-y-5>.collapsible-section,
-#forecasts-panel.panel-visible .space-y-5>.collapsible-section {
+#forecasts-panel.panel-visible .space-y-5>.collapsible-section,
+#agent-panel .collapsible-section {
     animation: panelSectionFade 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
