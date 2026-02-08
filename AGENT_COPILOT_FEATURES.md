@@ -12,22 +12,16 @@ The agent automatically detects what you want to do:
 
 - **VIEW** — Show all actions in the queue
   - Example: "show me all actions", "what's in the queue?"
-  
 - **FILTER** — Narrow down existing results
   - Example: "only kitchen tasks", "show high risk actions", "actions for chicken"
-  
 - **ADD** — Create new actions
   - Example: "order chicken breast", "draft a PO for lettuce", "create a task for kitchen staff"
-  
 - **MODIFY** — Change action status
   - Example: "approve action abc123", "update status"
-  
 - **EXECUTE** — Trigger actions to run
   - Example: "execute all POs", "run action abc123", "do it"
-  
 - **REMOVE** — Reject/discard actions
   - Example: "reject the lettuce task", "cancel surplus actions"
-  
 - **RESET** — Rebuild the entire action queue
   - Example: "start over", "reset", "regenerate action plan"
 
@@ -38,22 +32,26 @@ The agent remembers your previous requests within a session:
 #### Refinement vs. New Requests
 
 **Refinement** (building on previous query):
-- "show me all actions" → "only the high risk ones" 
+
+- "show me all actions" → "only the high risk ones"
 - The agent knows you're filtering the previous result
 
 **New Request** (starting fresh):
+
 - "show me all actions" → "now check inventory for lettuce"
 - The agent understands this is a completely new inquiry
 
 #### Context Signals
 
 **Continuation phrases** (refining):
+
 - "only show", "just the", "narrow it down"
 - "what about", "also show", "include"
 - "except", "without", "not"
 - Pronouns: "those", "these", "them", "it"
 
 **New request phrases**:
+
 - "now", "next", "instead", "switch to"
 - New ingredient/topic mentioned
 - "check", "analyze" with new subject
@@ -61,11 +59,13 @@ The agent remembers your previous requests within a session:
 ### 3. **Smart Queue Filtering**
 
 When you refine results, the agent:
+
 - **Accumulates filters** unless you say "only" or "just"
 - **Shows narrowing context**: "Narrowed from 10 to 3 actions"
 - **Maintains filter state** across conversation turns
 
 Examples:
+
 ```
 User: "show me all actions"
 Agent: Loaded 15 actions into the queue.
@@ -83,10 +83,10 @@ The agent provides detailed feedback after executing actions:
 
 ```
 User: "execute high risk actions"
-Agent: 
+Agent:
   ✅ Executed 3/3 actions successfully
   📦 Affected: Chicken Breast, Lettuce, Tomatoes
-  
+
   Execution Results:
   ✅ a1b2c3d4  Chicken Breast  executed
   ✅ e5f6g7h8  Lettuce         executed
@@ -174,6 +174,7 @@ The action queue shows **only the results relevant to your query**:
 ### Example Workflows
 
 #### Workflow 1: Triage and Execute
+
 ```
 1. "show me all actions"
 2. "only high risk ones"
@@ -182,6 +183,7 @@ The action queue shows **only the results relevant to your query**:
 ```
 
 #### Workflow 2: Create and Verify
+
 ```
 1. "check inventory"
 2. "draft a PO for chicken breast"
@@ -191,6 +193,7 @@ The action queue shows **only the results relevant to your query**:
 ```
 
 #### Workflow 3: Filter and Review
+
 ```
 1. "show all actions"
 2. "only kitchen tasks"
@@ -286,7 +289,7 @@ Every agent response includes:
 ### Auto-Planning
 
 ```
-"generate action plan"  
+"generate action plan"
 → Creates actions from all active ML alerts
 
 "reset the queue"

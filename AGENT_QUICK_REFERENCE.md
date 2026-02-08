@@ -5,34 +5,40 @@
 Type these phrases to interact with the agent:
 
 ### View & Query
+
 - "show me all actions"
 - "what's in the queue?"
 - "what needs attention?"
 - "give me a status report"
 
 ### Filter & Refine
+
 - "only kitchen tasks"
 - "high risk only"
 - "actions for chicken breast"
 - "just show proposed ones"
 
 ### Execute & Manage
+
 - "execute high risk actions"
 - "execute those"
 - "do it"
 - "run action abc123"
 
 ### Approve & Reject
+
 - "approve action abc123"
 - "reject all surplus actions"
 - "cancel those"
 
 ### Create Actions
+
 - "order 50 units of chicken"
 - "draft a PO for lettuce"
 - "create a kitchen task for inventory check"
 
 ### Reset & Refresh
+
 - "start over"
 - "reset the queue"
 - "generate action plan"
@@ -40,6 +46,7 @@ Type these phrases to interact with the agent:
 ## 💡 Pro Tips
 
 ### 1. Chain Refinements
+
 ```
 You: "show all actions"
 Agent: [Shows 15 actions]
@@ -55,29 +62,35 @@ Agent: [Executes the 2 filtered actions]
 ```
 
 ### 2. Use Pronouns
+
 After filtering, you can say:
+
 - "execute those"
 - "approve them"
 - "show me details about it"
 
 ### 3. Get Context-Aware Help
+
 The agent remembers what you just asked and adjusts responses accordingly.
 
 ## 📊 Understanding the Display
 
 ### Conversation Area
+
 - Shows your messages
 - Shows agent's thinking process (tool calls)
 - Shows execution results
 - Provides suggestions for next steps
 
 ### Action Queue Section (Below)
+
 - Shows the **filtered/relevant** actions based on your query
 - Updates automatically after operations
 - Click rows for details
 - Use filters to narrow further
 
 ### Agent Stats (Top)
+
 - **Tool Calls**: How many tools the agent used
 - **Actions Created**: New actions proposed
 - **Turns**: Conversation back-and-forth count
@@ -85,42 +98,47 @@ The agent remembers what you just asked and adjusts responses accordingly.
 
 ## 🎯 Intent Types
 
-| Intent | What It Means | Example |
-|--------|---------------|---------|
-| **VIEW** | Show all actions | "show me everything" |
-| **FILTER** | Narrow results | "only kitchen tasks" |
-| **ADD** | Create new actions | "order chicken" |
-| **MODIFY** | Change status | "approve action abc" |
-| **EXECUTE** | Run actions | "execute those" |
-| **REMOVE** | Reject actions | "cancel surplus tasks" |
-| **RESET** | Regenerate queue | "start over" |
+| Intent      | What It Means      | Example                |
+| ----------- | ------------------ | ---------------------- |
+| **VIEW**    | Show all actions   | "show me everything"   |
+| **FILTER**  | Narrow results     | "only kitchen tasks"   |
+| **ADD**     | Create new actions | "order chicken"        |
+| **MODIFY**  | Change status      | "approve action abc"   |
+| **EXECUTE** | Run actions        | "execute those"        |
+| **REMOVE**  | Reject actions     | "cancel surplus tasks" |
+| **RESET**   | Regenerate queue   | "start over"           |
 
 ## 🔍 Filter Options
 
 ### By Owner
+
 - Kitchen
-- Purchasing  
+- Purchasing
 - VendorOps
 
 ### By Status
+
 - Proposed (pending)
 - Approved (ready)
 - Executed (done)
 - Rejected (cancelled)
 
 ### By Risk Level
+
 - Low
 - Medium
 - High
 - Critical
 
 ### By Action Type
+
 - Draft PO (Purchase Order)
 - Kitchen Task
 - Par Adjustment
 - ETA Update
 
 ### By Ingredient
+
 - Any ingredient name (e.g., "chicken", "lettuce")
 
 ## ⚡ Keyboard Shortcuts
@@ -131,6 +149,7 @@ The agent remembers what you just asked and adjusts responses accordingly.
 ## 🛠️ Common Workflows
 
 ### Daily Triage
+
 ```
 1. "what needs attention?"
 2. "show high risk actions"
@@ -138,6 +157,7 @@ The agent remembers what you just asked and adjusts responses accordingly.
 ```
 
 ### Ordering Workflow
+
 ```
 1. "check inventory"
 2. "draft PO for low stock items"
@@ -147,6 +167,7 @@ The agent remembers what you just asked and adjusts responses accordingly.
 ```
 
 ### Kitchen Management
+
 ```
 1. "show kitchen tasks"
 2. "what about high priority ones?"
@@ -155,6 +176,7 @@ The agent remembers what you just asked and adjusts responses accordingly.
 ```
 
 ### Cleanup
+
 ```
 1. "show rejected actions"
 2. "show old proposed actions"
@@ -181,6 +203,7 @@ A: Say "show all actions" or "reset filters"
 ## 📝 Example Conversations
 
 ### Example 1: Complete Workflow
+
 ```
 You: show me all actions
 Agent: Loaded 12 actions. [Shows queue]
@@ -200,6 +223,7 @@ Agent: 2 high risk actions remain (Tomatoes, Milk)
 ```
 
 ### Example 2: Creating Actions
+
 ```
 You: check inventory for lettuce
 Agent: Lettuce: 15 units on hand, 3.5 days of supply, stockout risk in 4 days
@@ -215,6 +239,7 @@ Agent: ✅ Executed! PO sent to purchasing department.
 ```
 
 ### Example 3: Bulk Operations
+
 ```
 You: show all proposed actions
 Agent: 8 proposed actions loaded.
