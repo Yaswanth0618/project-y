@@ -419,30 +419,35 @@
 
     destroyChart(state.hubCharts.comparisonBar);
     var categories = [
-      "Stock health",
-      "Risk score",
-      "Critical items",
-      "Restock urgency",
+      "Total Items",
+      "Healthy (7+ days)",
+      "Low Stock (3-7 days)",
+      "Critical (<3 days)",
     ];
-    var maxTotal = 200;
+    // Calculate meaningful metrics for each restaurant
     var comparisonData = restaurants.map(function (r) {
       var inv = r.inventory || [];
-      var total = inv.reduce(function (s, i) {
-        return s + (i.currentStock || 0);
-      }, 0);
-      var avgRisk = inv.length
-        ? inv.reduce(function (s, i) {
-            return s + (i.riskPercent || 0);
-          }, 0) / inv.length
-        : 0;
-      var critical = inv.filter(function (i) {
-        return i.status === "CRITICAL";
+      
+      // Count items by actual status based on daysOfSupply
+      var healthy = inv.filter(function (i) {
+        return i.daysOfSupply >= 7;
       }).length;
-      var stockHealth = Math.min(10, Math.round((total / maxTotal) * 10));
-      var riskScore = Math.min(10, Math.round(avgRisk / 10));
-      var criticalScore = Math.max(0, 10 - critical);
-      var restockUrgency = Math.min(10, Math.round(avgRisk / 10));
-      return [stockHealth, riskScore, criticalScore, restockUrgency];
+      
+      var low = inv.filter(function (i) {
+        return i.daysOfSupply >= 3 && i.daysOfSupply < 7;
+      }).length;
+      
+      var critical = inv.filter(function (i) {
+        return i.daysOfSupply < 3;
+      }).length;
+      
+      return {
+        location: r.name,
+        total: inv.length,
+        healthy: healthy,
+        low: low,
+        critical: critical
+      };
     });
     var compCtx = document.getElementById("chart-comparison-bar");
     if (compCtx) {
@@ -453,21 +458,21 @@
           datasets: [
             {
               label: restaurants[0] ? restaurants[0].name : "Main",
-              data: comparisonData[0] || [0, 0, 0, 0],
+              data: comparisonData[0] ? [comparisonData[0].total, comparisonData[0].healthy, comparisonData[0].low, comparisonData[0].critical] : [0, 0, 0, 0],
               backgroundColor: "rgba(99,102,241,0.7)",
               borderColor: "#6366f1",
               borderWidth: 1,
             },
             {
               label: restaurants[1] ? restaurants[1].name : "Downtown",
-              data: comparisonData[1] || [0, 0, 0, 0],
+              data: comparisonData[1] ? [comparisonData[1].total, comparisonData[1].healthy, comparisonData[1].low, comparisonData[1].critical] : [0, 0, 0, 0],
               backgroundColor: "rgba(16,185,129,0.7)",
               borderColor: "#10b981",
               borderWidth: 1,
             },
             {
               label: restaurants[2] ? restaurants[2].name : "Harbor",
-              data: comparisonData[2] || [0, 0, 0, 0],
+              data: comparisonData[2] ? [comparisonData[2].total, comparisonData[2].healthy, comparisonData[2].low, comparisonData[2].critical] : [0, 0, 0, 0],
               backgroundColor: "rgba(245,158,11,0.7)",
               borderColor: "#f59e0b",
               borderWidth: 1,
@@ -487,7 +492,7 @@
           },
           scales: {
             x: scaleOpts,
-            y: { min: 0, max: 10, ...scaleOpts },
+            y: { min: 0, ...scaleOpts },
           },
         },
       });
@@ -635,6 +640,30 @@
           },
         },
       });
+    }
+
+    // Render detailed inventory table
+    var tableBody = document.getElementById("inventory-detail-table");
+    if (tableBody && inventory.length > 0) {
+      tableBody.innerHTML = inventory.slice(0, 15).map(function(item) {
+        var statusColors = {
+          'CRITICAL': 'text-red-400 font-bold',
+          'HIGH': 'text-orange-400',
+          'MODERATE': 'text-amber-400',
+          'LOW': 'text-emerald-400'
+        };
+        var statusClass = statusColors[item.status] || 'text-white/60';
+        
+        return '<tr class="border-b border-white/5 hover:bg-white/5 transition-colors">' +
+          '<td class="py-2 pr-4 font-medium">' + escapeHtml(item.ingredient) + '</td>' +
+          '<td class="py-2 pr-4">' + escapeHtml(String(item.currentStock)) + ' ' + escapeHtml(item.unit) + '</td>' +
+          '<td class="py-2 pr-4">' + escapeHtml(String(item.avgDailyUse)) + ' ' + escapeHtml(item.unit) + '/day</td>' +
+          '<td class="py-2 pr-4">' + escapeHtml(String(item.daysOfSupply)) + ' days</td>' +
+          '<td class="py-2 ' + statusClass + '">' + escapeHtml(item.status) + '</td>' +
+          '</tr>';
+      }).join('');
+    } else if (tableBody) {
+      tableBody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-white/40">No inventory data</td></tr>';
     }
   }
 

@@ -39,14 +39,30 @@ def simulate_risk(params: Dict[str, Any]) -> List[Dict[str, Any]]:
         reason = item.get("reason") or ""
         if demand_multiplier > 1.3 and status == "CRITICAL":
             reason = f"Spike in demand exceeds {horizon_hours}h supply"
+        
+        # Calculate avgDailyUse based on current stock and a simulated usage pattern
+        # Using a base daily usage that varies by index to create diversity across items
+        # Formula: (index * 0.7 + 2.5) creates values ranging from 2.5 to ~8.1 for 8 items
+        BASE_USAGE_OFFSET = 2.5  # Minimum daily usage
+        USAGE_VARIANCE_FACTOR = 0.7  # Multiplier for index-based variance
+        base_daily_use = (index * USAGE_VARIANCE_FACTOR + BASE_USAGE_OFFSET) * demand_multiplier
+        avg_daily_use = round(base_daily_use, 1)
+        
+        # Calculate daysOfSupply based on currentStock and avgDailyUse
+        # If usage is 0, treat as very high supply (999 days) rather than 0
+        days_of_supply = round(item["currentStock"] / avg_daily_use, 1) if avg_daily_use > 0 else 999
+        
         out.append({
             "id": f"item-{index}",
             "name": item["name"],
+            "ingredient": item["name"],  # Add ingredient field for table display
             "currentStock": item["currentStock"],
             "unit": item["unit"],
             "riskPercent": round(calculated_risk),
             "status": status,
             "reason": reason,
+            "avgDailyUse": avg_daily_use,
+            "daysOfSupply": days_of_supply,
         })
     out.sort(key=lambda x: x["riskPercent"], reverse=True)
     return out
